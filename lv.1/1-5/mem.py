@@ -37,7 +37,7 @@ class Allocation():
 
         return arrsize
 
-    def myalloc(self):
+    def firstfit(self):
         mem_size = int(input("메모리 크기 입력 >> "))
         if len(self.__alloc) == 0:
             return -1
@@ -64,8 +64,76 @@ class Allocation():
             is_deleted = self.__del()
             if is_deleted == True:
                 break
-    
+
         return mem_start
+
+    def bestfit(self):
+        mem_size = int(input("메모리 크기 입력 >> "))
+        if len(self.__alloc) == 0:
+            return -1
+
+        exit_flag = 0
+
+        for idx, data in enumerate(self.__alloc):
+            if mem_size > data[1]:
+                exit_flag += 1
+            
+        if exit_flag == len(self.__alloc):
+            return -1
+
+        # mem data append
+        for idx, data in enumerate(self.__alloc):
+            if mem_size > data[1]:
+                continue
+            mem_start = data[0]
+            self.__alloc_dict[mem_start] = mem_size
+            self.__alloc[idx] = [ mem_start + mem_size, data[1] - mem_size ]
+            break
+
+        while True:
+            is_deleted = self.__del()
+            if is_deleted == True:
+                break
+        
+        return mem_start
+
+    def worstfit(self):
+        mem_size = int(input("메모리 크기 입력 >> "))
+        if len(self.__alloc) == 0:
+            return -1
+
+        exit_flag = 0
+
+        for idx, data in enumerate(self.__alloc):
+            if mem_size > data[1]:
+                exit_flag += 1
+            
+        if exit_flag == len(self.__alloc):
+            return -1
+
+        # mem data append
+        for idx, data in enumerate(self.__alloc):
+            if mem_size > data[1]:
+                continue
+            mem_start = data[0]
+            self.__alloc_dict[mem_start] = mem_size
+            self.__alloc[idx] = [ mem_start + mem_size, data[1] - mem_size ]
+            break
+
+        while True:
+            is_deleted = self.__del()
+            if is_deleted == True:
+                break
+        
+        return mem_start
+
+    def myalloc(self):
+        if self.__alloc_flag == 0: # fitst fit
+            return self.firstfit()
+        if self.__alloc_flag == 1: # best fit, test version
+            return self.bestfit()
+        if self.__alloc_flag == 2: # worst fit, not work
+            return self.worstfit()
 
     def __del(self):
         for idx, data in enumerate(self.__alloc):
@@ -118,10 +186,6 @@ def switches(allocation, switch):
         except:
             None
     return allocation
-
-# 0 : first
-# 1 : best
-# 2 : worst
 
 mymem = Allocation(0)
 allocation = []
