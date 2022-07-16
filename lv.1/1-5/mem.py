@@ -1,6 +1,3 @@
-# 0 : Not alloc
-# 1 : Alloced
-
 from mem_alloc_class import Allocation
 
 def switches(allocation, switch):
@@ -21,7 +18,7 @@ def switches(allocation, switch):
     return allocation
 
 if __name__ == "__main__":
-    mymem = Allocation(0)
+    mymem = Allocation()
     allocation = []
 
     while True:

@@ -3,23 +3,44 @@ class NumRngErr(Exception): # 사용자 정의 에러
         self.msg = msg
     
     def __str__(self):
-        return "[RNG error] input value : " + self.msg
+        return "[RNG error] input value : " + str(self.msg)
 
 class NotNumErr(Exception):
     def __init__(self, msg):
         self.msg = msg
     
     def __str__(self):
-        return "[NUM error] input value : " + self.msg
+        return "[NUM error] input value : " + str(self.msg)
 
 class Allocation():
     __alloc = []
     __alloc_dict = {}
     __alloc_flag = 0
 
-    def __init__(self, alloc_flag):
+    def __init__(self):
         self.__alloc.append([0, self.__allocArr()])
-        self.__alloc_flag = alloc_flag
+        while True:
+            try:
+                self.__alloc_flag = input("1. first fit, 2. best fit, 3. worst fit >> ")
+                if not self.__alloc_flag.isdigit():
+                    raise NotNumErr(self.__alloc_flag)
+                
+                self.__alloc_flag = int(self.__alloc_flag)-1
+                if self.__alloc_flag < 0:
+                    raise NumRngErr(self.__alloc_flag)
+                if self.__alloc_flag > 2:
+                    raise NumRngErr(self.__alloc_flag)
+                
+            except NotNumErr as err:
+                print(err)
+                continue
+            
+            except NumRngErr as err:
+                print(err)
+                continue
+
+            break
+        
     
     def __allocArr(self):
         # arr size selection
@@ -47,9 +68,6 @@ class Allocation():
             if mem_size > data[1]:
                 continue
             mem_start = self.__memAppend(idx, mem_size)
-            # mem_start = data[0]
-            # self.__alloc_dict[mem_start] = mem_size
-            # self.__alloc[idx] = [ mem_start + mem_size, data[1] - mem_size ]
             break
 
         return mem_start
@@ -68,10 +86,6 @@ class Allocation():
         
         # mem data append
         mem_start = self.__memAppend(idx_temp, mem_size)
-        # mem_start = self.__alloc[idx_temp][0]
-        # self.__alloc_dict[mem_start] = mem_size
-        # self.__alloc[idx_temp] = [ mem_start + mem_size, self.__alloc[idx_temp][1] - mem_size ]
-
         return mem_start
 
     def worstfit(self, mem_size):
@@ -79,10 +93,6 @@ class Allocation():
         self.__alloc.sort(key=lambda x:x[1], reverse=True)
 
         mem_start = self.__memAppend(0, mem_size)
-        # mem_start = self.__alloc[0][0]
-        # self.__alloc_dict[mem_start] = mem_size
-        # self.__alloc[0] = [ mem_start + mem_size, self.__alloc[0][1] - mem_size ]
-        
         return mem_start
 
     def __memAppend(self, idx, mem_size):
@@ -114,9 +124,9 @@ class Allocation():
         # mem append method
         if self.__alloc_flag == 0: # fitst fit
             mem_start = self.firstfit(mem_size)
-        if self.__alloc_flag == 1: # best fit
+        elif self.__alloc_flag == 1: # best fit
             mem_start = self.bestfit(mem_size)
-        if self.__alloc_flag == 2: # worst fit
+        elif self.__alloc_flag == 2: # worst fit
             mem_start = self.worstfit(mem_size)
 
         # delete mem
