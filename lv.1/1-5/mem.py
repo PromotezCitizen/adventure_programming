@@ -20,11 +20,12 @@ def switches(allocation, switch):
             None
     return allocation
 
-mymem = Allocation(0)
-allocation = []
+if __name__ == "__main__":
+    mymem = Allocation(0)
+    allocation = []
 
-while True:
-    allocation = switches(allocation, input("malloc, free, exit >> "))
-    if allocation == "exit":
-        break
-    mymem.printStat()
+    while True:
+        allocation = switches(allocation, input("malloc, free, exit >> "))
+        if allocation == "exit":
+            break
+        mymem.printStat()
