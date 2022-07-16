@@ -104,7 +104,10 @@ class Allocation():
 
         exit_flag = 0
 
-        for idx, data in enumerate(self.__alloc):
+        self.__alloc.sort(key=lambda x:x[1], reverse=True)
+        print(self.__alloc)
+
+        for _, data in enumerate(self.__alloc):
             if mem_size > data[1]:
                 exit_flag += 1
             
@@ -112,13 +115,9 @@ class Allocation():
             return -1
 
         # mem data append
-        for idx, data in enumerate(self.__alloc):
-            if mem_size > data[1]:
-                continue
-            mem_start = data[0]
-            self.__alloc_dict[mem_start] = mem_size
-            self.__alloc[idx] = [ mem_start + mem_size, data[1] - mem_size ]
-            break
+        mem_start = self.__alloc[0][0]
+        self.__alloc_dict[mem_start] = mem_size
+        self.__alloc[0] = [ mem_start + mem_size, self.__alloc[0][1] - mem_size ]
 
         while True:
             is_deleted = self.__del()
@@ -130,9 +129,9 @@ class Allocation():
     def myalloc(self):
         if self.__alloc_flag == 0: # fitst fit
             return self.firstfit()
-        if self.__alloc_flag == 1: # best fit, test version
+        if self.__alloc_flag == 1: # best fit, not work
             return self.bestfit()
-        if self.__alloc_flag == 2: # worst fit, not work
+        if self.__alloc_flag == 2: # worst fit
             return self.worstfit()
 
     def __del(self):
@@ -187,7 +186,7 @@ def switches(allocation, switch):
             None
     return allocation
 
-mymem = Allocation(0)
+mymem = Allocation(2)
 allocation = []
 
 while True:
