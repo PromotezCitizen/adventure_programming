@@ -3,12 +3,13 @@ from pynput import keyboard
 from puzzle_runner import NPuzzleRunner
 
 def on_press(key):
-    end = True
+    end = False
     try:
         if key.char == 'h':
             print(test.hint())
     except:
         None
+    
     if key == keyboard.Key.up:
         end = test.mv_up()
     elif key == keyboard.Key.down:
