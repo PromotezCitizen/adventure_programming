@@ -12,12 +12,14 @@ class NPuzzle():
         self.__y_pos = 0
         self.__puzzle_init()
         self.__optimize_com_movement()
+        self.__hint = 4
+        self.__max_hint = self.__hint
     
-    def __change_position(self, origin, to): # __change_postion(origin: [x_pos,y_pos], to: [x_pos,y_pos])
+    def __change_position(self, origin, to, show_flag=True): # __change_postion(origin: [x_pos,y_pos], to: [x_pos,y_pos])
         temp = self.__puzzle[origin[0]][origin[1]]
         self.__puzzle[origin[0]][origin[1]] = self.__puzzle[to[0]][to[1]]
         self.__puzzle[to[0]][to[1]] = temp
-        print(self.__puzzle, end="\n\n")
+        if show_flag: print(self.__puzzle, end="\n\n")
 
     def __puzzle_init(self):
         for _ in range(100):
@@ -28,7 +30,7 @@ class NPuzzle():
                     self.__x_pos -= 1
                     if self.__x_pos < 0: raise
                     self.__shake_forward.append(mv)
-                    self.__change_position([self.__x_pos+1, self.__y_pos], [self.__x_pos, self.__y_pos])
+                    self.__change_position([self.__x_pos+1, self.__y_pos], [self.__x_pos, self.__y_pos], False)
                 except:
                     self.__x_pos += 1
 
@@ -37,7 +39,7 @@ class NPuzzle():
                     self.__y_pos -= 1
                     if self.__y_pos < 0 : raise
                     self.__shake_forward.append(mv)
-                    self.__change_position([self.__x_pos, self.__y_pos+1], [self.__x_pos, self.__y_pos])
+                    self.__change_position([self.__x_pos, self.__y_pos+1], [self.__x_pos, self.__y_pos], False)
                 except:
                     self.__y_pos += 1
 
@@ -46,7 +48,7 @@ class NPuzzle():
                     self.__y_pos += 1
                     if self.__y_pos >= self.__puzzle_size: raise
                     self.__shake_forward.append(mv)
-                    self.__change_position([self.__x_pos, self.__y_pos-1], [self.__x_pos, self.__y_pos])
+                    self.__change_position([self.__x_pos, self.__y_pos-1], [self.__x_pos, self.__y_pos], False)
                 except:
                     self.__y_pos -= 1
 
@@ -55,7 +57,7 @@ class NPuzzle():
                     self.__x_pos += 1
                     if self.__x_pos >= self.__puzzle_size: raise
                     self.__shake_forward.append(mv)
-                    self.__change_position([self.__x_pos-1, self.__y_pos], [self.__x_pos, self.__y_pos])
+                    self.__change_position([self.__x_pos-1, self.__y_pos], [self.__x_pos, self.__y_pos], False)
                 except:
                     self.__x_pos -= 1
 
@@ -87,6 +89,9 @@ class NPuzzle():
             print(data, end=",")
         print("]")
 
+    def __print_puzzle(self):
+        None
+
     def print_puzzle(self):
         print(self.__puzzle)
 
@@ -96,8 +101,12 @@ class NPuzzle():
 
     def mv_end(self):
         if len(self.__shake_forward) == 0:
-            return False
-        return True
+            return True
+        temp = [ x for x in range(self.__puzzle_size**2) ]
+        temp = np.resize(np.array(temp), (3,3))
+        if np.array_equal(temp, self.__puzzle):
+            return True
+        return False
 
     def mv_up(self):
         try:
@@ -148,7 +157,6 @@ class NPuzzle():
             self.__shake_forward.pop(0)
         else:
             self.__shake_forward.insert(0, dir)
-        print(self.__shake_forward)
 
     def auto_move(self):
         for _ in range(20):
@@ -163,31 +171,50 @@ class NPuzzle():
             elif mv == 3: # shaked to up -> restore: up
                 self.mv_up()
 
-test = NPuzzle()
-
-test.mv_start()
-
-# test.auto_move()
+    def hint(self):
+        if self.__hint < 1:
+            return 'Not available hint: you have zero hint coin'
+        data = 3 - self.__shake_forward[0]
+        self.__hint -= 1
+        msg = " - hint coin left (%d/%d)" % (self.__hint, self.__max_hint)
+        if data == 0:
+            return "UP" + msg
+        if data == 1:
+            return "LEFT" + msg
+        if data == 2:
+            return "RIGHT" + msg
+        if data == 3:
+            return "DOWN" + msg
 
 def on_press(key):
+    end = True
+    try:
+        if key.char == 'h':
+            print(test.hint())
+    except:
+        None
     if key == keyboard.Key.up:
-        test.mv_up()
-    if key == keyboard.Key.down:
-        test.mv_down()
-    if key == keyboard.Key.left:
-        test.mv_left()
-    if key == keyboard.Key.right:
-        test.mv_right()
-
+        end = test.mv_up()
+    elif key == keyboard.Key.down:
+        end = test.mv_down()
+    elif key == keyboard.Key.left:
+        end = test.mv_left()
+    elif key == keyboard.Key.right:
+        end = test.mv_right()
+    if end == True:
+        return False
     if key == keyboard.Key.esc:
         return False
 
-    
-
-
-with keyboard.Listener(on_press=on_press) as listener:
-    listener.join()
-
+while True:
+    print("start")
+    test = NPuzzle()
+    test.mv_start()
+    with keyboard.Listener(on_press=on_press) as listener:
+        listener.join()
+    print("end")
+    if input('exit? (y/n)').lower() == 'y':
+        break
 
 # puzzle_size = 3
 # puzzle = [ x for x in range(puzzle_size**2)]
