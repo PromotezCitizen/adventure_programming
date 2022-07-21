@@ -42,6 +42,7 @@ custom_idx = 1
 turn = 1
 
 # run
+# 영업시간 직전에 받은 고객은 
 while turn < 100:
     print('now turn : ', turn)
     turn += 1
@@ -73,6 +74,22 @@ while turn < 100:
         service_time_left -= 1
         
 
+def printResult(waiter_queue, service_time_arr):
+    waiter_queue.print()
+    service_times = [x[1] for x in service_time_arr]
+    wait_times = [x[-1] for x in service_time_arr]
+    arrival_times = [x[-3] for x in service_time_arr]
+    service_start = [x[-2] for x in service_time_arr]
+
+    print('처리된 고객들')
+    for idx, data in enumerate(service_times):
+        print('\t%2d customer - arrival : %3d, start : %3d, service : %3d, wait : %3d'
+            % (idx, arrival_times[idx], service_start[idx], service_times[idx], wait_times[idx]))
+
+    print('전체 통계')
+    print('\twait: %d, service: %d' % (sum(wait_times), sum(service_times)))
+    print('\tavg service: %0.2f' % (sum(service_times) / len(service_times)))
+    print('\tavg wait: %0.2f' % (sum(wait_times) / len(wait_times)))
 
 # 큐 대기시간 - wait_time
 # 평균 큐 대기시간 - wait_time / len(service_time)
@@ -81,16 +98,5 @@ while turn < 100:
 # 전체 고객 수 - len(service_times)
 
 # service time queue : Custom No, service_time, arrval_time, start_time, wait_time
-waiter_queue.print()
-service_times = [x[1] for x in service_time_arr]
-wait_times = [x[-1] for x in service_time_arr]
-arrival_times = [x[-3] for x in service_time_arr]
-service_start = [x[-2] for x in service_time_arr]
 
-for idx, data in enumerate(service_times):
-    print('%2d customer - arrival : %3d, start : %3d, service : %3d, wait : %3d'
-        % (idx, arrival_times[idx], service_start[idx], service_times[idx], wait_times[idx]))
-
-print('wait: %d, service: %d' % (sum(wait_times), sum(service_times)))
-print('avg service: %0.2f' % (sum(service_times) / len(service_times)))
-print('avg wait: %0.2f' % (sum(wait_times) / len(wait_times)))
+printResult(waiter_queue, service_time_arr)
