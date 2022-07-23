@@ -1,5 +1,7 @@
+from cmath import e
 import random
 import numpy as np
+import os
 
 class NPuzzle():
     def __init__(self, puzzle_size):
@@ -100,6 +102,8 @@ class NPuzzle():
             self._shake_forward.insert(0, dir)
 
     def print_puzzle(self):
+        os.system('cls')
+        print('이동 : →←↑↓, 힌트 : h, 세이브 : 1, 로드 : 2, 종료 : esc') # 기본 조작법
         # 3*3
         # row : ┌ ┐ => 2, print value : puzzle_size, blank : puzzle_size+1
         # col : ┌ ┐ => 2, print value : puzzle_size, blank : puzzle_size+1
@@ -204,10 +208,10 @@ class NPuzzleRunner(NPuzzle):
     def mv_up(self):
         try:
             self._x_pos -= 1
-            if self._x_pos < 0: raise
+            if self._x_pos < 0: raise Exception
             self._mv_forward_push(0)
             self._change_position([self._x_pos+1, self._y_pos], [self._x_pos, self._y_pos])
-        except:
+        except Exception as e:
             self._x_pos += 1
 
         return self.mv_end()
@@ -215,10 +219,10 @@ class NPuzzleRunner(NPuzzle):
     def mv_down(self):
         try:
             self._x_pos += 1
-            if self._x_pos >= self._puzzle_size: raise
+            if self._x_pos >= self._puzzle_size: raise Exception
             self._mv_forward_push(3)
             self._change_position([self._x_pos-1, self._y_pos], [self._x_pos, self._y_pos])
-        except:
+        except Exception as e:
             self._x_pos -= 1
 
         return self.mv_end()
@@ -226,10 +230,10 @@ class NPuzzleRunner(NPuzzle):
     def mv_left(self):
         try:
             self._y_pos -= 1
-            if self._y_pos < 0: raise
+            if self._y_pos < 0: raise Exception
             self._mv_forward_push(1)
             self._change_position([self._x_pos, self._y_pos+1], [self._x_pos, self._y_pos])
-        except:
+        except Exception as e:
             self._y_pos += 1
 
         return self.mv_end()
@@ -237,10 +241,45 @@ class NPuzzleRunner(NPuzzle):
     def mv_right(self):
         try:
             self._y_pos += 1
-            if self._y_pos >= self._puzzle_size: raise
+            if self._y_pos >= self._puzzle_size: raise Exception
             self._mv_forward_push(2)
             self._change_position([self._x_pos, self._y_pos-1], [self._x_pos, self._y_pos])
-        except:
+        except Exception as e:
             self._y_pos -= 1
 
         return self.mv_end()
+
+    def save(self):
+        # user count
+        # ┠ row, column
+        # ┠ left hint counts
+        # ┠ puzzle
+        # ┗ computer calculate arr
+        try:
+            temp = np.array([np.array([self._y_pos, self._x_pos]), np.array(self._hint), self._puzzle, np.array(self._shake_forward)], dtype=object)
+            np.save('save.npy', temp)
+        except Exception as e:
+            print('save error', e)
+
+    def load(self):
+        try:
+            t = np.load('save.npy', allow_pickle=True)
+            if len(t) != 4:
+                raise Exception
+            if len(t[0]) != 2:
+                raise Exception
+            pos = t[0]
+            self._y_pos = pos[0]
+            self._x_pos = pos[1]
+            self._hint = t[1]
+            self._puzzle = t[2]
+            self._shake_forward = t[3].tolist()
+            self._puzzle_size = len(t[2])
+
+            self.print_puzzle()
+
+            print('load finished')
+            return True
+        except Exception as e:
+            print('savefile error', e)
+            return False

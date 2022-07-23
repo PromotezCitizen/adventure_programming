@@ -1,5 +1,4 @@
 from pynput import keyboard
-
 from puzzle_runner import NPuzzleRunner
 
 def on_press(key):
@@ -7,6 +6,11 @@ def on_press(key):
     try:
         if key.char == 'h':
             print(test.hint())
+        elif key.char == '1':
+            test.save()
+        elif key.char == '2':
+            test.load()
+            None
     except:
         None
     
@@ -25,9 +29,19 @@ def on_press(key):
 
 if __name__ == "__main__":
     while True:
-        size = int(input('퍼즐 가로 크기 입력 >> '))
-        test = NPuzzleRunner(size)
-        test.mv_start()
+        while True:
+            sl = input("시작 : s, 로드 : l")
+            if sl.lower() == 's':
+                size = int(input('퍼즐 가로 크기 입력 >> '))
+                test = NPuzzleRunner(size)
+                test.mv_start()
+                break
+            elif sl.lower() == 'l':
+                test = NPuzzleRunner(2)
+                if test.load():
+                    break
+
+
         with keyboard.Listener(on_press=on_press) as listener:
             listener.join()
         if input("exit?(Y/n) >> ").lower() == 'y':
