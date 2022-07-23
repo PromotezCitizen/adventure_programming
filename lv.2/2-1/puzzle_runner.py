@@ -258,6 +258,7 @@ class NPuzzleRunner(NPuzzle):
         try:
             temp = np.array([np.array([self._y_pos, self._x_pos]), np.array(self._hint), self._puzzle, np.array(self._shake_forward)], dtype=object)
             np.save('save.npy', temp)
+            print('save finished')
         except Exception as e:
             print('save error', e)
 
