@@ -3,7 +3,6 @@ class Queue():
         self.__queue = [] # idx, service_time, arrval_time, wait_time
         self.__waiters = 0
         self.__queue_size = queue_size
-        None
 
     def enqueue(self, data):
         self.__waiters += 1

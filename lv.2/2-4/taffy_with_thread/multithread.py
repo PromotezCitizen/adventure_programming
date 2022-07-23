@@ -29,15 +29,15 @@ def printResult(customer_data):
     printAllStatistics(service_time_arr, wait_time_arr, customer_cnt)
     printSepStatistics(customer_data)
 
-# 공유된 변수를 위한 클래스
+# Taffy 대기열 계산을 위한 대기열
 class ThreadVariable(): # runner
     def __init__(self, time):
-        global queue
-        global queue_lock
-        global customer_idx
         self._dequeue_arr = []
         self.__service_time_left = 0
         self._max_time = time
+        global queue
+        global queue_lock
+        global customer_idx
 
     def run(self):
         for arrival in range(self._max_time):
@@ -113,18 +113,20 @@ class ConsumerThread(threading.Thread):
         self._return = runner.run()
 
     def join(self):
+        # join 함수 overload. 권장하지는 않는다고 한다.
         threading.Thread.join(self)
         return self._return
 
-queue = Queue(QUEUE_SIZE)
+queue = Queue(QUEUE_SIZE) # taffy 상점의 대기열
 customer_idx = 0
 result = None
+windows = 3  # taffy 상점의 창구 개수
 
 queue_lock = threading.Lock()
 
 runner = ThreadVariable(MAX_TIME)
 
-for _ in range(3):
+for _ in range(windows):
     th = ConsumerThread()
     th.start()
 
