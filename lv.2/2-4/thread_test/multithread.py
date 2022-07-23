@@ -28,86 +28,96 @@ class Queue():
         return len(self.__queue) == 0
 
     def print(self):
-        print(self.__queue)
-        for idx, data in enumerate(self.__queue):
-            print(idx, data)
+        print('\t\t', self.__queue)
 
 # 공유된 변수를 위한 클래스
 class ThreadVariable(): # runner
     def __init__(self):
-        global dequeue_arr
+        global queue
         global queue_lock
-        global arr
-        self.turn = 0
+        global customer_idx
+        self._dequeue_arr = []
         self.__service_time_left = 0
 
     def run(self):
-        for _ in range(1, 11):
-            with queue_lock:
-                choice = random.randrange(1, 7)
-                if choice == 1: # 매장 방문
-                    data = [self.turn, random.randint(1, 10), 0] # arrival time, service time, wait time
-                    self.__enqueueFrontData(data)
-                elif choice == 4: # call
-                    # 전화가 온 경우에는 queue에서 빼지 않는다.
-                    data = [self.turn, random.randint(1, 10), 0] # arrival time, service time, wait time
-                    
-                    arr.addWaitTime()
-                    self.__enqueueCallData(data)
+        for arrival in range(MAX_TIME):
+
+            queue_lock.acquire()
+            choice = random.randrange(1, 7)
+            print('switches - %d(%2d)' % (choice, arrival))
+            data = [customer_idx, arrival, random.randint(1, 10), 0] # user idx, arrival time, service time, wait time
+            if choice == 1: # 매장 방문
+                self.__enqueueData(data, 'front')
+            elif choice == 4: # call
+                queue.addWaitTime()
+                self.__enqueueData(data, 'call')
+                if self.__service_time_left != 0:
+                    self._dequeue_arr[-1][-1] = +1
+                    queue_lock.release()
                     continue
+            queue_lock.release()
 
-            with queue_lock:
-                if self.__service_time_left == 0:
-                    deq_data = self.__dequeueData()
-                    if deq_data is not None:
-                        dequeue_arr.append(deq_data)
-                        self.__service_time_left = deq_data[1]
-                        arr.addWaitTime()
-                else:
-                    arr.addWaitTime()
+            queue_lock.acquire()
+            print(self.__service_time_left)
+            if self.__service_time_left == 0:
+                deq_data = self.__dequeueData()
+                if deq_data is not None:
+                    self._dequeue_arr.append(deq_data)
+                    self.__service_time_left = deq_data[2]
+                    queue.addWaitTime()
+            else:
+                self.__service_time_left -= 1
+                queue.addWaitTime()
+            queue_lock.release()
 
-    def __enqueueFrontData(self, data):
-        if not arr.isFull():
-            arr.enqueue(data)
-            self.__enqueuePrint(data)
-            self.turn += 1
+        return self._dequeue_arr
+
+    def __enqueueData(self, data, msg):
+        global customer_idx
+        if not queue.isFull():
+            queue.enqueue(data)
+            customer_idx += 1
+            self.__enqueuePrint(data, msg)
         else:
-            print("user fulled. cant append call user")
-
-    def __enqueueCallData(self, data):
-        if not arr.isFull():
-            arr.enqueue(data)
-            self.__enqueuePrint(data)
-            self.turn += 1
-        else:
-            print("user fulled. cant append call user")
+            print("\tuser fulled. cant append %s user" % msg)
+        queue.print()
 
     def __dequeueData(self):
-        if not arr.isEmpty():
-            deq_data = arr.dequeue()
+        if not queue.isEmpty():
+            deq_data = queue.dequeue()
             self.__dequeuePrint(deq_data)
+            queue.print()
             return deq_data
+        print("\tuser dequeue failed. empty queue")
+        queue.print()
         return None
 
-    def __enqueuePrint(self, data):
-        print('enqueue - user: %2d, data: %2d' % (data[0], data[1]))
+    def __enqueuePrint(self, data, msg):
+        print('\tenqueue(%5s) - user: %2d, arrival : %2d, data: %2d' % (msg, data[0], data[1], data[2]))
 
     def __dequeuePrint(self, data):
-        print('dequeue - user: %2d, data: %2d' % (data[0], data[1]))
+        print('\tdequeue - user: %2d, arrival : %2d, data: %2d' % (data[0], data[1], data[2]))
  
 # ConsumerThread
 class ConsumerThread(threading.Thread):
     def __init__(self):
         super().__init__()
         self.name = "consumer"
+        self._return = None
         global runner
  
     # ConsumerThread가 실행하는 함수
     def run(self):
-        runner.run()
+        self._return = runner.run()
+
+    def join(self):
+        threading.Thread.join(self)
+        return self._return
  
-arr = Queue()
-dequeue_arr = []
+queue = Queue()
+customer_idx = 0
+result = None
+
 queue_lock = threading.Lock()
 
 runner = ThreadVariable()
@@ -119,8 +129,6 @@ for _ in range(2):
 mainThread = threading.current_thread()
 for thread in threading.enumerate():
     if thread is not mainThread:
-        thread.join()
+        result = thread.join()
 
-finish = runner.turn
-print(finish)
-print(dequeue_arr)
+print(result)
