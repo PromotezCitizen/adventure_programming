@@ -33,37 +33,38 @@ class Queue():
             print(idx, data)
 
 # 공유된 변수를 위한 클래스
-class ThreadLocks():
+class ThreadVariable(): # runner
     def __init__(self):
-        self._queue_lock = threading.Lock()
-        global arr
-
-class ThreadVariable(ThreadLocks): # runner
-    def __init__(self):
-        super().__init__()
-        self.turn = 0
         global dequeue_arr
+        global queue_lock
+        global arr
+        self.turn = 0
+        self.__service_time_left = 0
 
     def run(self):
         for _ in range(1, 11):
-            self._queue_lock.acquire()
-            choice = random.randrange(1, 7)
-            if choice == 1: # 매장 방문
-                data = [self.turn, random.randint(1, 10), 0] # arrival time, service time, wait time
-                self.__enqueueFrontData(data)
+            with queue_lock:
+                choice = random.randrange(1, 7)
+                if choice == 1: # 매장 방문
+                    data = [self.turn, random.randint(1, 10), 0] # arrival time, service time, wait time
+                    self.__enqueueFrontData(data)
+                elif choice == 4: # call
+                    # 전화가 온 경우에는 queue에서 빼지 않는다.
+                    data = [self.turn, random.randint(1, 10), 0] # arrival time, service time, wait time
+                    
+                    arr.addWaitTime()
+                    self.__enqueueCallData(data)
+                    continue
 
-            elif choice == 4: # call
-                # 전화가 온 경우에는 queue에서 빼지 않는다.
-                data = [self.turn, random.randint(1, 10), 0] # arrival time, service time, wait time
-                arr.addWaitTime()
-                self.__enqueueCallData(data)
-                continue
-            
-            # 시간 지났는지 조건 판단 가능해야함
-            deq_data = self.__dequeueData()
-            if deq_data is not None:
-                dequeue_arr.append(deq_data)
-            self._queue_lock.release()
+            with queue_lock:
+                if self.__service_time_left == 0:
+                    deq_data = self.__dequeueData()
+                    if deq_data is not None:
+                        dequeue_arr.append(deq_data)
+                        self.__service_time_left = deq_data[1]
+                        arr.addWaitTime()
+                else:
+                    arr.addWaitTime()
 
     def __enqueueFrontData(self, data):
         if not arr.isFull():
@@ -107,6 +108,7 @@ class ConsumerThread(threading.Thread):
  
 arr = Queue()
 dequeue_arr = []
+queue_lock = threading.Lock()
 
 runner = ThreadVariable()
 
