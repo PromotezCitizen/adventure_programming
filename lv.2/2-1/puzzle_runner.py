@@ -4,14 +4,13 @@ import numpy as np
 import os
 
 class NPuzzle():
-    def __init__(self, puzzle_size, idx):
+    def __init__(self, puzzle_size):
         self._puzzle_size = puzzle_size
         self._puzzle = [ x for x in range(self._puzzle_size**2)]
         self._puzzle = np.reshape(np.array(self._puzzle), (self._puzzle_size, self._puzzle_size))
         self._shake_forward = []
         self._x_pos = 0
         self._y_pos = 0
-        self._save_name = 'save{0}.npy'.format(idx)
         self._puzzle_init()
         self._optimize_com_movement()
 
@@ -163,6 +162,7 @@ class NPuzzleRunner(NPuzzle):
         self._hint = 4
         self._max_hint = self._hint
         self.__move = ['Up', 'Left', 'Right', 'Down']
+        self._save_name = 'save{0}.npy'.format(idx)
 
     def mv_start(self):
         self._shake_forward.reverse()
