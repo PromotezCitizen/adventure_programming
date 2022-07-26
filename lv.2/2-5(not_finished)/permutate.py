@@ -15,6 +15,7 @@ class Permutation():
         self._turn = 0
         self._countries_dict = {}
         self._max_time = 1800
+        self._pause = False
 
     def run(self):
         self._makeCountryDict()
@@ -38,6 +39,9 @@ class Permutation():
             self._countries_dict[data[0]] = {'x': int(data[1]), 'y': int(data[2])}
 
     def _permutate(self, start, end): # use stack
+        while self._pause:
+            None
+            
         ret_start, ret_end = start, end
         if self._turn > self._max_time:
             return ret_start, ret_end
@@ -82,18 +86,15 @@ class Permutation():
         # for data in self._permutate_result: print('\t', data)
         print('best time: %4.4f, best path:' % (self._best_time), self._best_course)
 
-if __name__ == "__main__":
-    number = 5
-    Permutation(number).run()
 
 
 # 기본 문제
-    # ▪메뉴 방식으로 프로그램이 실행된다(도시 개수 선택 등)
+    # ▪메뉴 방식으로 프로그램이 실행된다(도시 개수 선택 등) - 완료
     # ▪2개 이상의 소스파일과 1개 이상의 헤더파일을 사용한다. 
     # ▪첫 번째 경로와 거리를 출력하고 더 좋은 경로가 나오면 그때의 경로와 거리를 출력한다.
-    #   최종적으로 가장 좋은 경로 및 거리를 출력한다.
+    #   최종적으로 가장 좋은 경로 및 거리를 출력한다. - 완료
     # ▪전역 변수 사용은 가급적 자제한다.
-    # ▪실험 당 최대 수행 시간을 30분 이내로 제한하고,
+    # ▪실험 당 최대 수행 시간을 30분 이내로 제한하고, - 완료
     #   30분 이내에 몇 개의 도시까지 최적의 경로(모든 경로를 다 검사)를 찾을 수 있는지 확인한다.
     #   대략적으로 5개, 10개, 11개, 12개, 13개, ...와 같이 실험을 실행해 보면 된다.
 
