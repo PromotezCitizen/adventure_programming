@@ -1,0 +1,60 @@
+# row = 2, col = 1
+# calc 11 to 5
+#       row = 1, col = 0
+#       row = 3, col = 2
+#       
+# calc 1 to 7 => sum = 3 => row+col
+#       row = 0, col = 3
+#       row = 1, col = 2
+#       row = 3, col = 0
+
+
+# row = 1, col = 1
+# calc 11 to 5
+#       row = 0, col = 0
+#       row = 2, col = 2
+#       row = 3, col = 3
+#       
+# calc 1 to 7 => sum = 2 => row+col
+#       row = 0, col = 2
+#       row = 2, col = 0
+
+
+# if map == [5][5]
+
+
+# row = 2, col = 1
+# calc 11 to 5
+#       row = 0, col = -1 <= invalid.
+#       row = 1, col = 0
+#       row = 3, col = 2
+#       row = 4, col = 3
+#       
+# calc 1 to 7 => sum = 3 => row+col
+#       row = 0, col = 3
+#       row = 1, col = 2
+#       row = 3, col = 0
+
+
+# row = 1, col = 1
+# calc 11 to 5
+#       row = 0, col = 0 => col_start = col-row
+#       row = 2, col = 2
+#       row = 3, col = 3
+#       row = 4, col = 4
+#       
+# calc 1 to 7 => sum = 2 => row+col
+#       row = 0, col = 2
+#       row = 2, col = 0
+
+# row = 2, col = 3
+# calc 11 to 5
+#       row = 0, col = 1
+#       row = 2, col = 2
+#       row = 3, col = 3
+#       row = 4, col = 4
+#       
+# calc 1 to 7 => sum = 5 => row+col
+#       row = 1, col = 4
+#       row = 3, col = 2
+#       row = 4, col = 1
