@@ -1,27 +1,31 @@
-from pynput import keyboard
+import msvcrt
 
-def spin():
-    print('start')
-    while pause:
-        with keyboard.Listener(on_press=on_press) as listener:
-            listener.join()
-    print('end')
-
-def on_press(key):
-    try:
-        if key.char == 'a':
-            global pause
-            print('pressed a', pause)
-            pause = False
-            return True
-    except:
+class Spin():
+    def __init__(self):
+        self.__pause = False
         None
 
-    if key == keyboard.Key.up:
-        print('pressed up')
-        return False
+    def spin(self):
+        if msvcrt.kbhit():
+            ch = msvcrt.getch()
+            print(ch, type(ch))
+            self.__pause = not self.__pause
+
+    def isPause(self):
+        return self.__pause
+
 
 if __name__ == "__main__":
-    pause = True
-
-    spin()
+    spin = Spin()
+    temp = 0
+    while True:
+        t = 0
+        spin.spin()
+        while spin.isPause():
+            t += 1
+            spin.spin()
+            if t % 10000 == 0:
+                print(t, 'sub while')
+        temp += 1
+        if temp % 10000 == 0:
+            print(temp, 'main while')
