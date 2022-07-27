@@ -13,12 +13,13 @@ class NotNumErr(Exception):
         return "[NUM error] input value : " + str(self.msg)
 
 class Allocation():
-    __alloc = []
-    __alloc_dict = {}
-    __alloc_flag = 0
 
     def __init__(self):
         self.__alloc.append([0, self.__allocArr()])
+        
+        self.__alloc = []
+        self.__alloc_dict = {}
+        self.__alloc_flag = 0
         while True:
             try:
                 self.__alloc_flag = input("1. first fit, 2. best fit, 3. worst fit >> ")

@@ -1,4 +1,3 @@
-import math
 import random
 from collections import Counter
 
@@ -7,6 +6,61 @@ class NumRngErr(Exception): # 사용자 정의 에러
 
 class SelectedCardErr(Exception):
     pass
+
+
+class NumberGameDeckMaker():
+    def __init__(self):
+        self._player_num = self._inputPlayerNum()
+        self._dup_flag = self._setDufFlag()
+        self._multiplier = 1
+        self._scores = self._makeCardDeck()
+
+    def _inputPlayerNum(self):
+        while True:
+            num_player = input("풀레이어의 수 입력 >> ")
+            if num_player.isdigit():
+                return num_player
+
+    def _makeCardDeck(self):
+        return [ [] for _ in range(int(self._player_num)) ]
+
+    def createdeck(pls, flag=1):
+        arr = []
+        for val in range(pls*4):
+            arr.append(val)
+            if flag == 2:
+                arr.append(val)
+        random.shuffle(arr)
+        return arr, [0]*(pls*4*flag)
+
+    def _setDufFlag():
+        flag = None
+        while True:
+            try:
+                flag = int(input("숫자 중복을 허용하시겠습니까? (1: 중복 비허용, 2: 중복 허용)"))
+                if not (flag == 1 or flag == 2):
+                    raise NumRngErr
+                break
+            except NumRngErr:
+                print("옳지 않은 값입니다.", end=" ")
+        return flag
+
+    def _setMultiplier(self):
+        while True:
+            try:
+                mltp = input("중복 배수값을 입력해주세요(1 이상) : ")
+                if mltp == '':
+                    raise NumRngErr
+                
+                mltp = int(mltp)
+                if mltp < 1:
+                    raise NumRngErr
+                
+                break
+            except NumRngErr:
+                print("옳지 않은 값입니다.")
+        if mltp > 1:
+            self._multiplier = mltp
 
 def inputplayer():
     while True:
