@@ -1,25 +1,28 @@
-import random
 import copy
 
 class NQueen():
     def __init__(self, size):
         self._size = size
-        self.__temp = [0,1]
-        self._chess_map = [ [random.choices(self.__temp, weights=[4,1])[0] for _ in range(size)] for _ in range(size)]
+        self._chess_map = [ [0 for _ in range(size)] for _ in range(size)]
         self._results = []
+        self._unique_results = []
 
     def run(self):
-        self._move(self._chess_map, 0)
-        # self._calcCanPosition(self._chess_map, 3, 2)
-        self._printResults()
+        self._solve(self._chess_map, 0)
+        self._getUniqueResults()
+        self._printResults("", self._results)
+        self._printResults("unique ", self._unique_results)
 
-    def _printResults(self):
-        print(self._results)
-        # if len(self._results) == 0:
-        #     print("결과 없음")
-        # else:
-        #     for idx, chess_map in enumerate(self._results):
-        #         self._printChessMap(idx, chess_map)
+    def _printResults(self, msg, arr): # msg="" or "unique "
+        print('%sresults - %5d' % (msg, len(arr)))
+        # self._printFlag(arr)
+
+    def _printFlag(self, arr):
+        if len(arr) == 0:
+            print("결과 없음")
+        else:
+            for idx, chess_map in enumerate(arr):
+                self._printChessMap(idx, chess_map)
 
     def _printChessMap(self, idx, chess_map):
         print('result %3d' % idx)
@@ -43,13 +46,13 @@ class NQueen():
             x[check_neg + idx]
             for idx, x in enumerate(chess_map)
             if (check_neg + idx > -1) and (idx < pos_row)
-        ]
+        ]  # abs 쓰는 방법도 있다
 
         cross_map_1_to_7 = [
             x[check_pos - idx] 
             for idx, x in enumerate(chess_map)
             if (check_pos - idx < self._size) and (idx < pos_row)
-        ]
+        ]  # abs 쓰는 방법도 있다
 
         # print('pos - row: %2d, col: %2d' % (pos_row, pos_col))
         # print('vertical -', vertical_map)
@@ -61,37 +64,60 @@ class NQueen():
             return True
         return False
 
-    def _move(self, chess_map, pos_row):
+    def _solve(self, chess_map, pos_row):
         local_map = copy.deepcopy(chess_map)
         if pos_row >= self._size:
             self._results.append(local_map)
-            self._printChessMap(0, local_map)
+            # self._printChessMap(0, local_map)
             return
         for idx in range(self._size):
-            if not self._calcCanPosition(local_map, pos_row, idx): continue
-            print(pos_row, idx)
+            if not self._calcCanPosition(local_map, pos_row, idx):
+                continue
             local_map[pos_row][idx] = 1
-            self._move(local_map, pos_row+1)
+            # self._printChessMap(0, local_map)
+            self._solve(local_map, pos_row+1)
             local_map[pos_row][idx] = 0
 
+    def _getUniqueResults(self):
+        self._unique_results = copy.deepcopy(self._results)
+        for arr in self._unique_results:
+            self._isTrun2RightIn(arr)
 
-def Move(chess_map, pos_row):
-    local_map = copy.deepcopy(chess_map)
-    if pos_row >= size:
-        results.append(local_map)
-        return
-    for idx in range(size):
-        if not calcCanPosition(local_map, pos_row, idx): continue
-        local_map[pos_row][idx] = 1
-        Move(local_map, pos_row+1)
-        local_map[pos_row][idx] = 0
+    def _isTrun2RightIn(self,arr):
+        data = copy.deepcopy(arr)
+        for _ in range(3):
+            data = [ list(reversed([x[col] for x in data])) for col in range(map_size) ]
+            try:
+                self._unique_results.remove(data)
+            except:
+                None
 
-# map_size = 4
-# queen = NQueen(map_size)
+map_size = 20
+queen = NQueen(map_size)
 
-# queen.run()
+queen.run()
 
+# def printArr(arr):
+#     for x in arr:
+#         for y in x:
+#             print("%2d" % y, end=" ")
+#         print('')
+#     print('')
 
+# data = [ [ x + i * map_size for x in range(map_size) ] for i in range(map_size) ]
+# printArr(data)
+
+# temp = [ list(reversed([x[col] for x in data])) for col in range(map_size) ]
+# printArr(temp)
+
+# temp = [ list(reversed([x[col] for x in temp])) for col in range(map_size)]
+# printArr(temp)
+
+# temp = [ list(reversed([x[col] for x in temp])) for col in range(map_size)]
+# printArr(temp)
+
+# temp = [ list(reversed([x[col] for x in temp])) for col in range(map_size)]
+# printArr(temp)
 
 def t():
     def calcCanPosition(chess_map, pos_row, pos_col):
@@ -156,4 +182,4 @@ def t():
     for arr in results:
         printMap(arr)
 
-t()
+# t()
