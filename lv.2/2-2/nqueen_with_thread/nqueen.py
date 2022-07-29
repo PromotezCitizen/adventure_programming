@@ -1,17 +1,21 @@
 import copy
 
 class NQueen():
-    def __init__(self, size):
-        self._size = size
-        self._chess_map = [ [0 for _ in range(size)] for _ in range(size)]
+    def __init__(self, map_size, calc_range):
+        self._size = map_size
+        self._calc_range = calc_range
+        self._chess_map = [ [0 for _ in range(self._size)] for _ in range(self._size)]
         self._results = []
         self._unique_results = []
 
     def run(self):
-        self._solve(self._chess_map, 0)
-        self._getUniqueResults()
-        self._printResults("", self._results)
-        self._printResults("unique ", self._unique_results)
+        if len(self._calc_range) > 0:
+            self._solve(self._chess_map, 0)
+            self._getUniqueResults()
+            self._printResults("", self._results)
+            self._printResults("unique ", self._unique_results)
+
+        return self._results, self._unique_results
 
     def _printResults(self, msg, arr): # msg="" or "unique "
         print('%sresults - %5d' % (msg, len(arr)))
@@ -71,6 +75,8 @@ class NQueen():
             # self._printChessMap(0, local_map)
             return
         for idx in range(self._size):
+            if (pos_row == 0) and (idx not in self._calc_range):
+                continue  # 자신이 맡은 인덱스가 아니라면 건너뛴다
             if not self._calcCanPosition(local_map, pos_row, idx):
                 continue
             local_map[pos_row][idx] = 1
@@ -91,9 +97,3 @@ class NQueen():
                 self._unique_results.remove(data)
             except:
                 None
-
-if __name__ == "__main__":
-    map_size = 4
-    queen = NQueen(map_size)
-
-    queen.run()
