@@ -11,11 +11,12 @@ class NQueen():
     def run(self):
         if len(self._calc_range) > 0:
             self._solve(self._chess_map, 0)
-            self._getUniqueResults()
-            self._printResults("", self._results)
-            self._printResults("unique ", self._unique_results)
+            #self._getUniqueResults()
+            #self._printResults("", self._results)
+            #self._printResults("unique ", self._unique_results)
 
-        return self._results, self._unique_results
+        #return self._results, self._unique_results
+        return self._results
 
     def _printResults(self, msg, arr): # msg="" or "unique "
         print('%sresults - %5d' % (msg, len(arr)))
@@ -89,7 +90,7 @@ class NQueen():
         for arr in self._unique_results:
             self._isTrun2RightIn(arr)
 
-    def _isTrun2RightIn(self,arr):
+    def _isTrun2RightIn(self, arr):
         data = copy.deepcopy(arr)
         for _ in range(3):
             data = [ list(reversed([x[col] for x in data])) for col in range(self._size) ]
