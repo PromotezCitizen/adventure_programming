@@ -5,7 +5,6 @@ def worker(procnum, return_dict):
     print(str(procnum) + " represent!")
     return_dict[procnum] = procnum
 
-
 if __name__ == "__main__":
     manager = multiprocessing.Manager()
     return_dict = manager.dict()
