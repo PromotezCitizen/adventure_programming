@@ -6,7 +6,7 @@ class NQueen():
         self._calc_range = calc_range
         self._chess_map = [ [0 for _ in range(self._size)] for _ in range(self._size)]
         self._results = []
-        self._unique_results = []
+        #self._unique_results = []
 
     def run(self):
         if len(self._calc_range) > 0:
@@ -18,24 +18,24 @@ class NQueen():
         #return self._results, self._unique_results
         return self._results
 
-    def _printResults(self, msg, arr): # msg="" or "unique "
-        print('%sresults - %5d' % (msg, len(arr)))
-        # self._printFlag(arr)
+    # def _printResults(self, msg, arr): # msg="" or "unique "
+    #     print('%sresults - %5d' % (msg, len(arr)))
+    #     # self._printFlag(arr)
 
-    def _printFlag(self, arr):
-        if len(arr) == 0:
-            print("결과 없음")
-        else:
-            for idx, chess_map in enumerate(arr):
-                self._printChessMap(idx, chess_map)
+    # def _printFlag(self, arr):
+    #     if len(arr) == 0:
+    #         print("결과 없음")
+    #     else:
+    #         for idx, chess_map in enumerate(arr):
+    #             self._printChessMap(idx, chess_map)
 
-    def _printChessMap(self, idx, chess_map):
-        print('result %3d' % idx)
-        for x in chess_map:
-            for data in x:
-                print('%2d' % data, end=" ")
-            print('')
-        print('')
+    # def _printChessMap(self, idx, chess_map):
+    #     print('result %3d' % idx)
+    #     for x in chess_map:
+    #         for data in x:
+    #             print('%2d' % data, end=" ")
+    #         print('')
+    #     print('')
 
     def _calcCanPosition(self, chess_map, pos_row, pos_col):
         check_neg = pos_col - pos_row
@@ -85,16 +85,16 @@ class NQueen():
             self._solve(local_map, pos_row+1)
             local_map[pos_row][idx] = 0
 
-    def _getUniqueResults(self):
-        self._unique_results = copy.deepcopy(self._results)
-        for arr in self._unique_results:
-            self._isTrun2RightIn(arr)
+    # def _getUniqueResults(self):
+    #     self._unique_results = copy.deepcopy(self._results)
+    #     for arr in self._unique_results:
+    #         self._isTrun2RightIn(arr)
 
-    def _isTrun2RightIn(self, arr):
-        data = copy.deepcopy(arr)
-        for _ in range(3):
-            data = [ list(reversed([x[col] for x in data])) for col in range(self._size) ]
-            try:
-                self._unique_results.remove(data)
-            except:
-                None
+    # def _isTrun2RightIn(self, arr):
+    #     data = copy.deepcopy(arr)
+    #     for _ in range(3):
+    #         data = [ list(reversed([x[col] for x in data])) for col in range(self._size) ]
+    #         try:
+    #             self._unique_results.remove(data)
+    #         except:
+    #             None

@@ -10,6 +10,8 @@ class NQueenThread(threading.Thread):
         self._unique_result = None
 
     def run(self):
+        # thread start 시작시 thread 활동 나타냄.
+        # thread 시작은 run 대신 start 사용
         self._result = self._nqueen.run()
 
     def join(self):
