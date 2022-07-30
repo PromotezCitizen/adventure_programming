@@ -36,3 +36,5 @@ def useThreading(map_size, splited):
 
     print(f"time elapsed : {int(round((time.perf_counter() - start_time) * 1000))}ms")
     print('results: %6d' % (len(nqueen_result_list)))
+
+    return nqueen_result_list

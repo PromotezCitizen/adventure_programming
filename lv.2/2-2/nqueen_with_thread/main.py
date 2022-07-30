@@ -1,5 +1,6 @@
 from nqueen_threading import useThreading
 from nqueen_processing import useProcessing
+from nqueen_unique_result import getUniqueSolve
 import threading # 현재 thread가 main thread인지 확인
 
 def data_split(arr, thread_num):
@@ -42,24 +43,17 @@ def printChessMap(idx, chess_map):
 if __name__ == "__main__":
     if threading.currentThread() == threading.main_thread():
         thread_num = 6
-        map_size = 11
+        map_size = 10
         splited = data_split([ x for x in range(map_size) ], thread_num)
 
         print('process result')
-        useProcessing(map_size, splited)
+        temp = useProcessing(map_size, splited)
+        print(len(getUniqueSolve(temp)))
+        # 멀티프로세스를 사용시 고유한 결과가 제대로 계산되지 않음
         print('=======================================')
         print('thread result')
-        useThreading(map_size, splited)
-
-
-    # data = [[0, 1, 0, 0, 0], [0, 0, 0, 1, 0], [1, 0, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 0, 1]]
-    # printChessMap(-1, data)
-    # data = [ list(reversed([x[col] for x in data])) for col in range(len(data)) ]
-    # printChessMap(-1, data)
-    # data  = isReflectiveIn(None, data)
-    # printChessMap(-1, data)
-    # data = [ list(reversed([x[col] for x in data])) for col in range(len(data)) ]
-    # printChessMap(-1, data)
+        temp = useThreading(map_size, splited)
+        print(len(getUniqueSolve(temp)))
 
 # https://coding-groot.tistory.com/103 - threading
 # https://www.inflearn.com/questions/85857 - multi processing

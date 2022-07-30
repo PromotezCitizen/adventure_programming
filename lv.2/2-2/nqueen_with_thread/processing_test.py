@@ -1,6 +1,5 @@
 import multiprocessing
 
-
 def worker(procnum, return_dict):
     """worker function"""
     print(str(procnum) + " represent!")

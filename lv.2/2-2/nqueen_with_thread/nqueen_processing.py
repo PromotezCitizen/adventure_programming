@@ -30,6 +30,8 @@ def useProcessing(map_size, splited):
     print('results: %6d' % (len(nqueen_result_list)))
     # print('results: %6d, unique results: %6d' % (len(results), len(unique_results)))
 
+    return nqueen_result_list
+
 def worker(idx, map_size, calc_range, return_dict):
     nqueen = NQueen(map_size, calc_range)
     nqueen_result = nqueen.run()
