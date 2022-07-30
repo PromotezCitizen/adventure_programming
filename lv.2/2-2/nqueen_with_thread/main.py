@@ -1,9 +1,9 @@
-from enum import unique
 from nqueen_thread import NQueenThread
 from nqueen import NQueen
 import threading
 import multiprocessing as mp
 import copy
+import time
 
 def data_split(arr, thread_num):
     def _set_split_idx(split_end, arr_left, arr_avg):
@@ -29,28 +29,26 @@ def data_split(arr, thread_num):
 
 
 def useThread(map_size, splited):
-    for _, arr in enumerate(splited):
+    start_time = time.perf_counter()
+    thread_pool = []
+    for arr in splited:
         nqueen_thread = NQueenThread(map_size, arr)
-        nqueen_thread.run()
+        thread_pool.append(nqueen_thread)
+        nqueen_thread.start()
 
     nqueen_result_list = []
-    nqueen_unique_result_list = []
-    mainThread = threading.current_thread()
 
-    for thread in threading.enumerate():
-        if thread is not mainThread:
-            nqueen_result, nqueen_unique_list = thread.join()
-            nqueen_result_list.append(nqueen_result)
-            nqueen_unique_result_list.append(nqueen_unique_list)
+    for thread in thread_pool:
+        nqueen_result = thread.join()
+        for result in nqueen_result:
+            nqueen_result_list.append(result)
 
-    for idx, list in nqueen_result_list:
-        None
+    print(f"time elapsed : {int(round((time.perf_counter() - start_time) * 1000))}ms")
+    print('results: %6d' % (len(nqueen_result_list)))
 
 def worker(idx, map_size, calc_range, return_dict):
     nqueen = NQueen(map_size, calc_range)
-    print('process %2d start' % idx)
     nqueen_result = nqueen.run()
-    print('process %2d end' % idx)
     return_dict[idx] = nqueen_result
 
 def getUniqueSolve(results):
@@ -111,7 +109,6 @@ def useProcessing(map_size, splited):
     return_dict = manager.dict()
     jobs = []
 
-    print('processing work start')
     for idx, calc_range in enumerate(splited):
         p = mp.Process(target=worker, args=(idx, map_size, calc_range, return_dict))
         jobs.append(p)
@@ -119,28 +116,30 @@ def useProcessing(map_size, splited):
 
     for p in jobs:
         p.join()
-    print('processing work end')
 
-    results = []
+    nqueen_result_list = []
     for x in return_dict.values():
         for y in x:
-            results.append(y)
-    unique_results = getUniqueSolve(results)
+            nqueen_result_list.append(y)
+
+    #unique_results = getUniqueSolve(results)
 
     # printFlag(results, 'result')
     # printFlag(unique_results, 'unique_result')
-
-    print('results: %6d, unique results: %6d' % (len(results), len(unique_results)))
+    print('results: %6d' % (len(nqueen_result_list)))
+    # print('results: %6d, unique results: %6d' % (len(results), len(unique_results)))
 
 
 thread_num = 6
-map_size = 12
+map_size = 10
 splited = data_split([ x for x in range(map_size) ], thread_num)
 
-# useThread(map_size, splited)
+useThread(map_size, splited)
 
 if __name__ == "__main__":
+    start_time = time.perf_counter()
     useProcessing(map_size, splited)
+    print(f"time elapsed : {int(round((time.perf_counter() - start_time) * 1000))}ms")
 
     # data = [[0, 1, 0, 0, 0], [0, 0, 0, 1, 0], [1, 0, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 0, 1]]
     # printChessMap(-1, data)
@@ -151,5 +150,6 @@ if __name__ == "__main__":
     # data = [ list(reversed([x[col] for x in data])) for col in range(len(data)) ]
     # printChessMap(-1, data)
 
+# https://coding-groot.tistory.com/103 - threading
 # https://www.inflearn.com/questions/85857 - multi processing
 # https://www.delftstack.com/ko/howto/python/python-multiprocessing-vs-threading/ - 스레딩 vs 프로세싱
