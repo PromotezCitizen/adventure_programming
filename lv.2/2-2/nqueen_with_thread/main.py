@@ -29,14 +29,14 @@ def data_split(arr, thread_num):
 
 
 def useThread(map_size, splited):
-    start_time = time.perf_counter()
     thread_pool = []
+    nqueen_result_list = []
+    start_time = time.perf_counter()
+
     for arr in splited:
         nqueen_thread = NQueenThread(map_size, arr)
         thread_pool.append(nqueen_thread)
         nqueen_thread.start()
-
-    nqueen_result_list = []
 
     for thread in thread_pool:
         nqueen_result = thread.join()
@@ -109,11 +109,12 @@ def useProcessing(map_size, splited):
     return_dict = manager.dict()
     jobs = []
 
+    start_time = time.perf_counter()
     for idx, calc_range in enumerate(splited):
         p = mp.Process(target=worker, args=(idx, map_size, calc_range, return_dict))
         jobs.append(p)
         p.start()
-
+    
     for p in jobs:
         p.join()
 
@@ -126,6 +127,7 @@ def useProcessing(map_size, splited):
 
     # printFlag(results, 'result')
     # printFlag(unique_results, 'unique_result')
+    print(f"time elapsed : {int(round((time.perf_counter() - start_time) * 1000))}ms")
     print('results: %6d' % (len(nqueen_result_list)))
     # print('results: %6d, unique results: %6d' % (len(results), len(unique_results)))
 
@@ -134,12 +136,14 @@ thread_num = 6
 map_size = 10
 splited = data_split([ x for x in range(map_size) ], thread_num)
 
-useThread(map_size, splited)
-
 if __name__ == "__main__":
-    start_time = time.perf_counter()
-    useProcessing(map_size, splited)
-    print(f"time elapsed : {int(round((time.perf_counter() - start_time) * 1000))}ms")
+    if threading.currentThread() == threading.main_thread():
+        print('process result')
+        useProcessing(map_size, splited)
+        print('=======================================')
+        print('thread result')
+        useThread(map_size, splited)
+
 
     # data = [[0, 1, 0, 0, 0], [0, 0, 0, 1, 0], [1, 0, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 0, 1]]
     # printChessMap(-1, data)
