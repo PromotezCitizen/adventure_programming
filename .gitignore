@@ -3,4 +3,4 @@
 *.pyc
 *.npy
 
-**/[a-z]test.py
+*test.py
