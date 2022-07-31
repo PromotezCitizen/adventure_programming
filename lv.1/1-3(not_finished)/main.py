@@ -4,7 +4,7 @@ from utils import dataSplit, printResult
 map_size = 100 # 가로, 세로 크기 조절해야하나?
 num_process = 5
 runners = 10
-num_radroach = 1
+num_radroach = 4
 
 if __name__ == "__main__":
     splited, can_run = dataSplit([x for x in range(runners)], num_process)

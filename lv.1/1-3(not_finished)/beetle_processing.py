@@ -23,6 +23,6 @@ def useProcessing(map_size, splited, num_roach):
     return beetle_result_list, end-start
 
 def worker(idx, map_size, calc_range, return_dict, num_roach):
-    beetle = Beetle(map_size, calc_range)
+    beetle = Beetle(map_size, calc_range, num_roach)
     nqueen_result = beetle.start()
     return_dict[idx] = nqueen_result

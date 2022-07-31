@@ -33,14 +33,14 @@ class Beetle():
         while self._checkRunDone(beetle_map) != self._map_size**2:
             # 해당 턴의 모든 딱정벌레가 다 이동해야 모든 곳을 이동했는지 여부를 계산
             #   why? 조건 한 번 검사할때마다 많은 오버헤드
-            for idx in range(self._num_roach):
+            for position in beetle_pos:
                 direct = random.randint(0,3)
                 mv += 1
                 beetle_move[direct] += 1
-                if self._checkPossibility(direct, beetle_pos[idx], self._map_size):
+                if self._checkPossibilityNMove(direct, position, self._map_size):
                     mv_real += 1
                     beetle_move_real[direct] += 1
-                    beetle_map[beetle_pos[idx]['row']][beetle_pos[idx]['col']] = 1
+                    beetle_map[position['row']][position['col']] = 1
         end = time.perf_counter()
         return {'mv': mv, 'mv_real': mv_real, 'runtime': end-start, 'direct': beetle_move, 'direct_real': beetle_move_real}
 
@@ -48,7 +48,7 @@ class Beetle():
         # 맵 전체를 다 돌았는지를 배열 sum값으로 판단
         return sum([ sum(x) for x in beetle_map ])
 
-    def _checkPossibility(self, mv, beetle_pos, map_size):
+    def _checkPossibilityNMove(self, mv, beetle_pos, map_size):
         if mv == self._UP:
             if beetle_pos['row'] == 0:
                 return False
