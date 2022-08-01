@@ -1,6 +1,8 @@
 def getUCODEData():
-    folder_path = '레벨3.3 UCode테스트/'
-    file_path = 'test1.uco'
+    # folder_path = '레벨3.3 UCode테스트/'
+    # file_path = 'test1.uco'
+    folder_path = ''
+    file_path = 'test.uco'
 
     # https://wikidocs.net/26 - readlines
     with open(folder_path+file_path, 'r') as f:
@@ -13,49 +15,31 @@ def getUCODEData():
 
     converted_lines = []
     for line in trimed_lines:
-        temp = []
-        for data in line:
-            try: data = int(data)
-            except: None
-            finally: temp.append(data)
-        converted_lines.append(temp)
+        if len(line) > 0:
+            temp = getStringedInt2Int(line)
+            converted_lines.append(temp)
 
     return converted_lines
 
-def getUCODESplitedByName(ucode_data, name):
-    function_block = []
+def getStringedInt2Int(line):
     temp = []
-    for line in ucode_data:
-        
-        if name not in line:
-            temp.append(line)
-            continue
-        function_block.append(temp)
-        temp = []
-        temp.append(line)
+    for data in line:
+        try: data = int(data)
+        except: None
+        finally: temp.append(data)
+    return temp
 
-    if len(temp) > 0:
-        function_block.append(temp)
-
-    return function_block
+def getFuncStartPosition(ucode, name):
+    func_start = {}
+    for idx, line in enumerate(ucode):
+        if name in line:
+            func_start[line[0]] = idx
+    return func_start
 
 ucode = getUCODEData()
-ucode = getUCODESplitedByName(ucode, 'proc')
-
-program = []
-for line in ucode:
-    program.append(getUCODESplitedByName(ucode, 'nop'))
+proc_starts = getFuncStartPosition(ucode, 'proc')
+label_starts = getFuncStartPosition(ucode, 'nop')
 
 
-print(len(program))
-
-for blocks in program:
-    for block in blocks:
-        for lines in block:
-            for line in lines:
-                printer = '\t\t'
-                if 'proc' in line:
-                    printer = ''
-                elif 'nop' in line:
-                    printer = '\t'
-                print(printer, line)
+for data in ucode:
+    print(data)
