@@ -142,15 +142,79 @@ def getStartPosition(ucode, name):
     return func_start
 
 def start():
-    # 프로그램 구성
-    def bgn(line):
+
+    def funcOperation(line):
+        if line[0] == 'proc':
+            None
+        elif line[0] == 'ret':
+            None
+        elif line[0] == 'ldp':
+            None
+        elif line[0] == 'push':
+            None
+        else: # call
+            None 
+
+    def ioOperation(op):
         None
 
-    def sym(line):
-        None
+    # 데이터 이동 연산
+    def datmvOperation(line):
+        if line[0] == 'lod':
+            None
+            # block = line[1]
+            # offset = line[2]
+            # stack.append(mem[block][offset])
 
+        elif line[0] == 'lda':
+            None
+            block = line[1]
+            offset = line[2]
+        elif line[0] == 'ldc':
+            None
+        elif line[0] == 'str':
+            None
+            # block = line[1]
+            # offset = line[2]
+            # mem[block][offset] = stack.pop()
+        elif line[0] == 'ldi':
+            None
+        else: # sti
+            None
+
+
+    # 단항 연산
+    def unaryOperation(line): # 스택을 직접 수정한다 가정
+        if line[0] == 'not':
+            None
+            #stack[-1] = not stack[-1]
+        elif line[0] == 'neg':
+            None
+            #stack[-1] = -stack[-1]
+        elif line[0] == 'inc':
+            None
+            #stack[-1] += 1
+        elif line[0] == 'dec':
+            None
+            #stack[-1] -= 1
+        else: # dup
+            None
+            #stack.append(stack[-1])
+
+    # 이항 연산 - eval 사용
+    # swap도 추가해야한다
+    def binaryOperation(op): # 스택을 직접 수정한다 가정
+        if op == 'swp':
+            None
+            # tmp = stack[-1]
+            # stack[-1] = stack[-2]
+            # stack[-2] = tmp
+        else:
+            None
+            #stack.append(eval('{0} {1} {2}'.format(stack[-2], operators[op], stack[-1])))
+    
     # 흐름 제어
-    def njp(line, idx):
+    def jmpOperation(line, idx):
         if line[0] == 'fjp':
             None
             # flag = stack.pop()
@@ -161,16 +225,10 @@ def start():
             # flag = stack.pop()
             # if flag == True:
             #     idx = label_starts[data[1]]
-        elif line[0] == 'ujp':
+        else: # ujp
             idx = label_starts[line[1]]
 
         return idx
-
-    # 이항 연산 - eval 사용
-    def binaryOperation(operator):
-        None
-        #stack.append(eval('{0} {1} {2}'.format(stack[-2], operator, stack[-1])))
-
 
     ucode = getUCODEData()
     proc_starts = getStartPosition(ucode, 'proc')
@@ -184,10 +242,11 @@ def start():
     global mem
 
     while turn < 200: # data[0] != 'end'
-        try:
-            data = ucode[idx]
-        except:
-            break
+        data = ucode[idx]
+        # try:
+        #     data = ucode[idx]
+        # except:
+        #     break
 
         print('turn-%4d(%4d)' % (turn, idx), data)
         if 'call' in data:
@@ -196,9 +255,6 @@ def start():
                 idx = proc_starts[data[1]]
             except:
                 None
-
-        elif data[0].find('jp') > 0 :
-            idx = njp(data, idx)
 
         elif 'proc' in data:
             idx = proc_starts[data[0]]
@@ -209,6 +265,18 @@ def start():
         elif 'ret' in data:
             idx = ret_pos
 
+        elif data[0] in datmv_operators:
+            datmvOperation(data)
+
+        elif data[0] in binary_operators.keys():
+            binaryOperation(data[0])
+
+        elif data[0] in unary_operators:
+            unaryOperation(data[0])
+
+        elif data[0] in jmp_operators:
+            idx = jmpOperation(data, idx)
+
         idx += 1
         turn += 1
 
@@ -216,7 +284,22 @@ def start():
 
 stack = []
 mem = []
-operators = {
+program_operators = [
+    'nop', 'bgn', 'syn', 'end'
+]
+function_operators = [
+    'proc', 'ret', 'ldp', 'push', 'call'
+]
+io_operators = [
+    'read', 'write', 'lf'
+]
+datmv_operators = [
+    'lod', 'lda', 'ldc', 'str', 'ldi', 'sti'
+]
+unary_operators = [
+    'not', 'neg', 'inc', 'dec', 'dup'
+]
+binary_operators = {
     'add': '+',
     'sub': '-',
     'mult': '*',
@@ -231,4 +314,7 @@ operators = {
     'and': 'and',
     'or': 'or'
 }
+jmp_operators = [
+    'ujp', 'tjp', 'fjp'
+]
 start()
