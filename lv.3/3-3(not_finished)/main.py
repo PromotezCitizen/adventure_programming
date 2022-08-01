@@ -169,7 +169,7 @@ def start():
     # 이항 연산 - eval 사용
     def binaryOperation(operator):
         None
-        #stack.append(eval('{0}{1}{2}'.format(stack[-2], operator, stack[-1])))
+        #stack.append(eval('{0} {1} {2}'.format(stack[-2], operator, stack[-1])))
 
 
     ucode = getUCODEData()
@@ -216,24 +216,19 @@ def start():
 
 stack = []
 mem = []
-operators = [
-    {'add': '+'},
-    {'sub': '-'},
-    {'mult': '*'},
-    {'div': '/'},
-    {'mod': '%'},
-    {'gt': '<'},
-    {'lt': '>'},
-    {'ge': '<='},
-    {'le': '>='},
-    {'eq': '=='},
-    {'ne': '!='},
-    {'and': '&&'},
-    {'or': '||'}
-]
+operators = {
+    'add': '+',
+    'sub': '-',
+    'mult': '*',
+    'div': '/',
+    'mod': '%',
+    'gt': '<',
+    'lt': '>',
+    'ge': '<=',
+    'le': '>=',
+    'eq': '==',
+    'ne': '!=',
+    'and': 'and',
+    'or': 'or'
+}
 start()
-
-# num1 = 3
-# num2 = 10
-# calc_data = '{0}{1}{2}'.format(num1, '+', num2)
-# print(eval(calc_data))
