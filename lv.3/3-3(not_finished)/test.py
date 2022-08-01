@@ -36,14 +36,18 @@ def getUCODESplitedByProc(ucode_data):
         temp = []
         temp.append(line)
         # print('%3d\t' % (idx+1), 'proc' in line)
-    function_line.append(temp)
+        
+    if len(temp) > 0:
+        function_line.append(temp)
 
     for idx ,line in (enumerate(function_line)):
         print(line[0])
         print('%3d\t' % (idx+1), 'proc' in line[0])
 
-lines = getUCODEData()
+    return function_line
 
+ucode = getUCODEData()
+ucode = getUCODESplitedByProc(ucode)
 
 # for idx, line in enumerate(lines):
 #     if 'proc' not in line:
