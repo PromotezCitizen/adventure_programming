@@ -20,45 +20,42 @@ def getUCODEData():
             finally: temp.append(data)
         converted_lines.append(temp)
 
-    for line in converted_lines:
-        print(line)
-
     return converted_lines
 
-def getUCODESplitedByProc(ucode_data):
-    function_line = []
+def getUCODESplitedByName(ucode_data, name):
+    function_block = []
     temp = []
-    for idx, line in enumerate(ucode_data):
-        if 'proc' not in line:
+    for line in ucode_data:
+        
+        if name not in line:
             temp.append(line)
             continue
-        function_line.append(temp)
+        function_block.append(temp)
         temp = []
         temp.append(line)
-        # print('%3d\t' % (idx+1), 'proc' in line)
-        
+
     if len(temp) > 0:
-        function_line.append(temp)
+        function_block.append(temp)
 
-    for idx ,line in (enumerate(function_line)):
-        print(line[0])
-        print('%3d\t' % (idx+1), 'proc' in line[0])
-
-    return function_line
+    return function_block
 
 ucode = getUCODEData()
-ucode = getUCODESplitedByProc(ucode)
+ucode = getUCODESplitedByName(ucode, 'proc')
 
-# for idx, line in enumerate(lines):
-#     if 'proc' not in line:
-#         temp.append(line)
-#         continue
-#     function_line.append(temp)
-#     temp = []
-#     temp.append(line)
-#     # print('%3d\t' % (idx+1), 'proc' in line)
-# function_line.append(temp)
+program = []
+for line in ucode:
+    program.append(getUCODESplitedByName(ucode, 'nop'))
 
-# for idx ,line in (enumerate(function_line)):
-#     print(line[0])
-#     print('%3d\t' % (idx+1), 'proc' in line[0])
+
+print(len(program))
+
+for blocks in program:
+    for block in blocks:
+        for lines in block:
+            for line in lines:
+                printer = '\t\t'
+                if 'proc' in line:
+                    printer = ''
+                elif 'nop' in line:
+                    printer = '\t'
+                print(printer, line)
