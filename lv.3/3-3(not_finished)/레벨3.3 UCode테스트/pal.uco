@@ -20,8 +20,8 @@ main       proc 4
            mult
            str 2 0
 $$0        nop
-           lod 2 0
-           str 2 2
+           lod 2 0 % org
+           str 2 2 % i => i <- org
            ldc 0
            str 2 1
 $$1        nop          % begin of while
