@@ -128,3 +128,31 @@ def getStartPosition(ucode, name):
 ucode = getUCODEData()
 proc_starts = getStartPosition(ucode, 'proc')
 label_starts = getStartPosition(ucode, 'nop')
+
+turn = 0
+idx = 0
+ret_pos = None
+while turn < 200:
+    try:
+        data = ucode[idx]
+    except:
+        break
+
+    print('turn-%4d(%4d)' % (turn, idx), data)
+    if 'call' in data:
+        try:
+            ret_pos = idx
+            idx = proc_starts[data[1]]
+        except:
+            None
+    elif 'ujp' in data:
+        idx = label_starts[data[1]]
+    elif 'proc' in data:
+        idx = proc_starts[data[0]]
+    elif 'nop' in data:
+        idx = label_starts[data[0]]
+    elif 'ret' in data:
+        idx = ret_pos
+
+    idx += 1
+    turn += 1
