@@ -156,120 +156,145 @@ def getStartPosition(ucode, name):
 
         # elif 'ret' in data:
         #     idx = ret_pos
-        
+
+
+def subroutine():
+    None
+
 def start():
+    def programOperation(line):
+        global mem
+        if line[1] == 'nop':
+            None
+        elif line[0] == 'bgn':
+            None
+        elif line[0] == 'sym':
+            for _ in range(line[3]):
+                mem[line[1]].append(-1)
+        else: # end
+            None
 
-    def funcOperation(line):
-        if line[0] == 'proc':
+    def funcOperation(line, idx):
+        command = line[0]
+        idx = idx
+        if command == 'proc':
             None
-        elif line[0] == 'ret':
+
+        elif command == 'ret':
+            idx = ret_pos
+
+        elif command == 'ldp':
             None
-        elif line[0] == 'ldp':
+
+        elif command == 'push':
             None
-        elif line[0] == 'push':
-            None
+
         else: # call
-            None 
+            procedure = line[1]
+            if procedure in io_operators:
+                ioOperation(procedure)
+            else:
+                print(proc_starts[procedure])
+                idx = proc_starts[procedure]
+        return idx
 
-    def ioOperation(line):
-        None
+    def ioOperation(procedure):
+        if procedure == 'read':
+            data = int(input("input data >> "))
+            stack.append(data)
+        elif procedure == 'write':
+            print(stack[-1])
+        elif procedure == 'lf':
+            print('')
 
     # 데이터 이동 연산
     def datmvOperation(line):
         if line[0] == 'lod':
-            None
-            # blck = line[1]
-            # ofst = line[2]
-            # stack.append(mem[blck][ofst])
+            blck = line[1]
+            ofst = line[2]
+            stack.append(mem[blck][ofst])
 
         elif line[0] == 'lda':
-            None
-            # blck = line[1]
-            # ofst = line[2]
-            # stack.append([blck, ofst])
+            blck = line[1]
+            ofst = line[2]
+            stack.append([blck, ofst])
             # 나중에 mem[blck][ofst]으로 연산
+
         elif line[0] == 'ldc':
-            None
-            # stack.append(line[1])
+            stack.append(line[1])
+
         elif line[0] == 'str':
-            None
-            # blck = line[1]
-            # ofst = line[2]
-            # mem[blck][ofst] = stack.pop()
+            blck = line[1]
+            ofst = line[2]
+            data = stack.pop()
+            print(data, mem)
+            mem[blck][ofst] = data
+
         elif line[0] == 'ldi':
-            None
-            # arr = stack.pop()
-            # blck = arr[0]
-            # ofst = arr[1]
-            # stack.append(mem[blck][ofst])
+            arr = stack.pop()
+            blck = arr[0]
+            ofst = arr[1]
+            stack.append(mem[blck][ofst])
+
         else: # sti
-            None
-            # data = stack.pop()
-            # arr = stack.pop()
-            # blck = arr[0]
-            # ofst = arr[1]
-            # mem[blck][ofst] = data
+            data = stack.pop()
+            arr = stack.pop()
+            blck = arr[0]
+            ofst = arr[1]
+            mem[blck][ofst] = data
 
 
     # 단항 연산
     def unaryOperation(line): # 스택을 직접 수정한다 가정
         if line[0] == 'not':
-            None
-            #stack[-1] = not stack[-1]
+            stack[-1] = not stack[-1]
         elif line[0] == 'neg':
-            None
-            #stack[-1] = -stack[-1]
+            stack[-1] = -stack[-1]
         elif line[0] == 'inc':
-            None
-            #stack[-1] += 1
+            stack[-1] += 1
         elif line[0] == 'dec':
-            None
-            #stack[-1] -= 1
+            stack[-1] -= 1
         else: # dup
-            None
-            #stack.append(stack[-1])
+            stack.append(stack[-1])
 
     # 이항 연산 - eval 사용
     # swap도 추가해야한다
     def binaryOperation(line): # 스택을 직접 수정한다 가정
         if line[0] == 'swp':
-            None
-            # tmp = stack[-1]
-            # stack[-1] = stack[-2]
-            # stack[-2] = tmp
+            tmp = stack[-1]
+            stack[-1] = stack[-2]
+            stack[-2] = tmp
         else:
             data = None
             try:
                 if len(stack[-1] > 1):
-                    None
-                    # arr = stack.pop()
-                    # blck = arr[0]
-                    # ofst = arr[1]
-                    # idx = mem[line[1]][line[2]]
-                    # stack.append([blck, ofst+idx])
+                    arr = stack.pop()
+                    blck = arr[0]
+                    ofst = arr[1]
+                    idx = mem[line[1]][line[2]]
+                    stack.append([blck, ofst+idx])
             except:
-                None
-                # data = eval('{0} {1} {2}'.format(
-                #         stack[-2],
-                #         binary_operators[line[0]],
-                #         stack[-1]
-                #     ))
+                right_data = stack.pop()
+                left_data = stack.pop()
+                data = eval('{0} {1} {2}'.format(
+                        left_data,
+                        binary_operators[line[0]],
+                        right_data
+                    ))
             finally:
                 None
-                # stack.append(data)
+                stack.append(data)
     
     # 흐름 제어
     def jmpOperation(line, idx):
         if line[0] == 'fjp':
-            None
-            # flag = stack.pop()
-            # if flag == False:
-            #     idx = label_starts[data[1]]
+            flag = stack.pop()
+            if flag == False:
+                idx = label_starts[data[1]]
         elif line[0] == 'tjp':
-            None
-            # flag = stack.pop()
-            # if flag == True:
-            #     idx = label_starts[data[1]]
+            flag = stack.pop()
+            if flag == True:
+                idx = label_starts[data[1]]
         else: # ujp
             idx = label_starts[line[1]]
 
@@ -286,6 +311,9 @@ def start():
     global stack
     global mem
 
+    print(proc_starts)
+    print(label_starts)
+
     while turn < 200: # data[0] != 'end'
         data = ucode[idx]
         # try:
@@ -294,23 +322,21 @@ def start():
         #     break
 
         print('turn-%4d(%4d)' % (turn, idx), data)
+
         if data[0] in program_operators:
-            None
+            programOperation(data)
 
         elif data[0] in function_operators:
-            None
-
-        elif data[0] in io_operators:
-            None
+            idx = funcOperation(data, idx)
 
         elif data[0] in datmv_operators:
             datmvOperation(data)
 
-        elif data[0] in binary_operators.keys():
-            binaryOperation(data[0])
-
         elif data[0] in unary_operators:
-            unaryOperation(data[0])
+            unaryOperation(data)
+
+        elif data[0] in binary_operators.keys():
+            binaryOperation(data)
 
         elif data[0] in jmp_operators:
             idx = jmpOperation(data, idx)
@@ -318,12 +344,10 @@ def start():
         idx += 1
         turn += 1
 
-
-
 stack = []
-mem = []
+mem = [[] for _ in range(3)]
 program_operators = [
-    'nop', 'bgn', 'syn', 'end'
+    'nop', 'bgn', 'sym', 'end'
 ]
 function_operators = [
     'proc', 'ret', 'ldp', 'push', 'call'
