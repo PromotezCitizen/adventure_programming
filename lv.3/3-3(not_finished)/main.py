@@ -140,7 +140,23 @@ def getStartPosition(ucode, name):
             # 형식으로 되어있음
             func_start[line[0]] = idx
     return func_start
+        
+        # if 'call' in data:
+        #     try:
+        #         ret_pos = idx
+        #         idx = proc_starts[data[1]]
+        #     except:
+        #         None
 
+        # elif 'proc' in data:
+        #     idx = proc_starts[data[0]]
+
+        # elif 'nop' in data:
+        #     idx = label_starts[data[0]]
+
+        # elif 'ret' in data:
+        #     idx = ret_pos
+        
 def start():
 
     def funcOperation(line):
@@ -155,32 +171,44 @@ def start():
         else: # call
             None 
 
-    def ioOperation(op):
+    def ioOperation(line):
         None
 
     # 데이터 이동 연산
     def datmvOperation(line):
         if line[0] == 'lod':
             None
-            # block = line[1]
-            # offset = line[2]
-            # stack.append(mem[block][offset])
+            # blck = line[1]
+            # ofst = line[2]
+            # stack.append(mem[blck][ofst])
 
         elif line[0] == 'lda':
             None
-            block = line[1]
-            offset = line[2]
+            # blck = line[1]
+            # ofst = line[2]
+            # stack.append([blck, ofst])
+            # 나중에 mem[blck][ofst]으로 연산
         elif line[0] == 'ldc':
             None
+            # stack.append(line[1])
         elif line[0] == 'str':
             None
-            # block = line[1]
-            # offset = line[2]
-            # mem[block][offset] = stack.pop()
+            # blck = line[1]
+            # ofst = line[2]
+            # mem[blck][ofst] = stack.pop()
         elif line[0] == 'ldi':
             None
+            # arr = stack.pop()
+            # blck = arr[0]
+            # ofst = arr[1]
+            # stack.append(mem[blck][ofst])
         else: # sti
             None
+            # data = stack.pop()
+            # arr = stack.pop()
+            # blck = arr[0]
+            # ofst = arr[1]
+            # mem[blck][ofst] = data
 
 
     # 단항 연산
@@ -203,15 +231,32 @@ def start():
 
     # 이항 연산 - eval 사용
     # swap도 추가해야한다
-    def binaryOperation(op): # 스택을 직접 수정한다 가정
-        if op == 'swp':
+    def binaryOperation(line): # 스택을 직접 수정한다 가정
+        if line[0] == 'swp':
             None
             # tmp = stack[-1]
             # stack[-1] = stack[-2]
             # stack[-2] = tmp
         else:
-            None
-            #stack.append(eval('{0} {1} {2}'.format(stack[-2], operators[op], stack[-1])))
+            data = None
+            try:
+                if len(stack[-1] > 1):
+                    None
+                    # arr = stack.pop()
+                    # blck = arr[0]
+                    # ofst = arr[1]
+                    # idx = mem[line[1]][line[2]]
+                    # stack.append([blck, ofst+idx])
+            except:
+                None
+                # data = eval('{0} {1} {2}'.format(
+                #         stack[-2],
+                #         binary_operators[line[0]],
+                #         stack[-1]
+                #     ))
+            finally:
+                None
+                # stack.append(data)
     
     # 흐름 제어
     def jmpOperation(line, idx):
@@ -249,21 +294,14 @@ def start():
         #     break
 
         print('turn-%4d(%4d)' % (turn, idx), data)
-        if 'call' in data:
-            try:
-                ret_pos = idx
-                idx = proc_starts[data[1]]
-            except:
-                None
+        if data[0] in program_operators:
+            None
 
-        elif 'proc' in data:
-            idx = proc_starts[data[0]]
+        elif data[0] in function_operators:
+            None
 
-        elif 'nop' in data:
-            idx = label_starts[data[0]]
-
-        elif 'ret' in data:
-            idx = ret_pos
+        elif data[0] in io_operators:
+            None
 
         elif data[0] in datmv_operators:
             datmvOperation(data)
