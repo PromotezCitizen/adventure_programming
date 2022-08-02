@@ -7,6 +7,9 @@ class UCodeInterpreter():
         self.__label_starts = None
         self.__stack = []
         self.__mem = []
+        self.__idx = 0
+        self.__ret_pos = 0
+        self.__op = Operators()
 
     def run(self):
         self.__ucode = self._getUCODEData()
@@ -63,32 +66,172 @@ class UCodeInterpreter():
 
     def _runUcode(self):
         turn = 0
-        idx = 0
-        ret_pos = None
+        self.__idx = 0
+        self.__ret_pos = None
         while turn < 200:
             try:
-                data = self.__ucode[idx]
+                data = self.__ucode[self.__idx]
             except:
                 break
 
-            print('turn-%4d(%4d)' % (turn, idx), data)
+            print('turn-%4d(%4d)' % (turn, self.__idx), data)
             if 'call' in data:
                 try:
-                    ret_pos = idx
-                    idx = self.__proc_starts[data[1]]
+                    self.__ret_pos = self.__idx
+                    self.__idx = self.__proc_starts[data[1]]
                 except:
                     None
             elif 'ujp' in data:
-                idx = self.__label_starts[data[1]]
+                self.__idx = self.__label_starts[data[1]]
             elif 'proc' in data:
-                idx = self.__proc_starts[data[0]]
+                self.__idx = self.__proc_starts[data[0]]
             elif 'nop' in data:
-                idx = self.__label_starts[data[0]]
+                self.__idx = self.__label_starts[data[0]]
             elif 'ret' in data:
-                idx = ret_pos
+                self.__idx = self.__ret_pos
 
-            idx += 1
+            self.__idx += 1
             turn += 1
+
+    def _programOperation(self, line):
+        if line[1] == 'nop':
+            None
+        elif line[0] == 'bgn':
+            None
+        elif line[0] == 'sym':
+            for _ in range(line[3]):
+                self.__mem[line[1]].append(-1)
+        else: # end
+            None
+
+    def _funcOperation(self, line, idx, ret_pos):
+        command = line[0]
+        idx = idx
+        if command == 'proc':
+            None
+
+        elif command == 'ret':
+            idx = ret_pos+1
+
+        elif command == 'ldp':
+            None
+
+        elif command == 'push':
+            None
+
+        else: # call
+            procedure = line[1]
+            ret_pos = idx
+            if procedure in io_operators:
+                self._ioOperation(procedure)
+            else:
+                idx = self.__proc_starts[procedure]
+        return idx, ret_pos
+
+    def _ioOperation(self, procedure):
+        if procedure == 'read':
+            data = int(input("input data >> "))
+            self.__stack.append(data)
+        elif procedure == 'write':
+            print(self.__stack[-1])
+        elif procedure == 'lf':
+            print('')
+
+    # 데이터 이동 연산
+    def _datmvOperation(self, line):
+        submem = []
+        if line[0] == 'lod':
+            blck = line[1]
+            ofst = line[2]
+            self.__stack.append(self.__mem[blck][ofst])
+
+        elif line[0] == 'lda':
+            blck = line[1]
+            ofst = line[2]
+            self.__stack.append([blck, ofst])
+            # 나중에 mem[blck][ofst]으로 연산
+
+        elif line[0] == 'ldc':
+            self.__stack.append(line[1])
+
+        elif line[0] == 'str':
+            blck = line[1]
+            ofst = line[2]
+            data = stack[-1]
+            self.__mem[blck][ofst] = data
+
+        elif line[0] == 'ldi':
+            arr = stack.pop()
+            print('\t\t', arr, stack)
+            blck = arr[0]
+            ofst = arr[1]
+            self.__stack.append(mem[blck][ofst])
+
+        else: # sti
+            data = stack.pop()
+            arr = stack.pop()
+            blck = arr[0]
+            ofst = arr[1]
+            self.__mem[blck][ofst] = data
+        
+        print('stack:', self.__stack)
+
+
+    # 단항 연산
+    def _unaryOperation(self, line): # 스택을 직접 수정한다 가정
+        if line[0] == 'not':
+            self.__stack[-1] = not self.__stack[-1]
+        elif line[0] == 'neg':
+            self.__stack[-1] = -self.__stack[-1]
+        elif line[0] == 'inc':
+            self.__stack[-1] += 1
+        elif line[0] == 'dec':
+            self.__stack[-1] -= 1
+        else: # dup
+            self.__stack.append(self.__stack[-1])
+
+    # 이항 연산 - eval 사용
+    # swap도 추가해야한다
+    def _binaryOperation(self, line): # 스택을 직접 수정한다 가정
+        if line[0] == 'swp':
+            tmp = self.__stack[-1]
+            self.__stack[-1] = self.__stack[-2]
+            self.__stack[-2] = tmp
+        else:
+            data = None
+            try:
+                if len(self.__stack[-1] > 1):
+                    arr = self.__stack.pop()
+                    blck = arr[0]
+                    ofst = arr[1]
+                    idx = self.__mem[line[1]][line[2]]
+                    self.__stack.append([blck, ofst+idx])
+            except:
+                right_data = self.__stack.pop()
+                left_data = self.__stack.pop()
+                data = eval('{0} {1} {2}'.format(
+                        left_data,
+                        binary_operators[line[0]],
+                        right_data
+                    ))
+            finally:
+                None
+                self.__stack.append(data)
+    
+    # 흐름 제어
+    def _jmpOperation(self, line, idx):
+        if line[0] == 'fjp':
+            flag = stack.pop()
+            if flag == False:
+                idx = self.__label_starts[line[1]]
+        elif line[0] == 'tjp':
+            flag = stack.pop()
+            if flag == True:
+                idx = self.__label_starts[line[1]]
+        else: # ujp
+            idx = self.__label_starts[line[1]]
+
+        return idx
 
 # interpreter = UCodeInterpreter('레벨3.3 UCode테스트/', 'test1.uco')
 # interpreter.run()
@@ -163,7 +306,6 @@ def subroutine():
 
 def start():
     def programOperation(line):
-        global mem
         if line[1] == 'nop':
             None
         elif line[0] == 'bgn':
@@ -174,14 +316,14 @@ def start():
         else: # end
             None
 
-    def funcOperation(line, idx):
+    def funcOperation(line, idx, ret_pos):
         command = line[0]
         idx = idx
         if command == 'proc':
             None
 
         elif command == 'ret':
-            idx = ret_pos
+            idx = ret_pos+1
 
         elif command == 'ldp':
             None
@@ -191,12 +333,12 @@ def start():
 
         else: # call
             procedure = line[1]
+            ret_pos = idx
             if procedure in io_operators:
                 ioOperation(procedure)
             else:
-                print(proc_starts[procedure])
                 idx = proc_starts[procedure]
-        return idx
+        return idx, ret_pos
 
     def ioOperation(procedure):
         if procedure == 'read':
@@ -209,6 +351,7 @@ def start():
 
     # 데이터 이동 연산
     def datmvOperation(line):
+        submem = []
         if line[0] == 'lod':
             blck = line[1]
             ofst = line[2]
@@ -226,12 +369,12 @@ def start():
         elif line[0] == 'str':
             blck = line[1]
             ofst = line[2]
-            data = stack.pop()
-            print(data, mem)
+            data = stack[-1]
             mem[blck][ofst] = data
 
         elif line[0] == 'ldi':
             arr = stack.pop()
+            print('\t\t', arr, stack)
             blck = arr[0]
             ofst = arr[1]
             stack.append(mem[blck][ofst])
@@ -242,6 +385,8 @@ def start():
             blck = arr[0]
             ofst = arr[1]
             mem[blck][ofst] = data
+        
+        print('stack:', stack)
 
 
     # 단항 연산
@@ -290,11 +435,11 @@ def start():
         if line[0] == 'fjp':
             flag = stack.pop()
             if flag == False:
-                idx = label_starts[data[1]]
+                idx = label_starts[line[1]]
         elif line[0] == 'tjp':
             flag = stack.pop()
             if flag == True:
-                idx = label_starts[data[1]]
+                idx = label_starts[line[1]]
         else: # ujp
             idx = label_starts[line[1]]
 
@@ -316,10 +461,6 @@ def start():
 
     while turn < 200: # data[0] != 'end'
         data = ucode[idx]
-        # try:
-        #     data = ucode[idx]
-        # except:
-        #     break
 
         print('turn-%4d(%4d)' % (turn, idx), data)
 
@@ -327,7 +468,7 @@ def start():
             programOperation(data)
 
         elif data[0] in function_operators:
-            idx = funcOperation(data, idx)
+            idx, ret_pos = funcOperation(data, idx, ret_pos)
 
         elif data[0] in datmv_operators:
             datmvOperation(data)
@@ -343,9 +484,70 @@ def start():
 
         idx += 1
         turn += 1
+        
+        # print('\tturn-%4d(%4d)' % (turn, idx), data)
 
 stack = []
 mem = [[] for _ in range(3)]
+
+class Operators():
+    def __init__(self):
+        self.__program_operators = [
+            'nop', 'bgn', 'sym', 'end'
+        ]
+        self.__function_operators = [
+            'proc', 'ret', 'ldp', 'push', 'call'
+        ]
+        self.__io_operators = [
+            'read', 'write', 'lf'
+        ]
+        self.__datmv_operators = [
+            'lod', 'lda', 'ldc', 'str', 'ldi', 'sti'
+        ]
+        self.__unary_operators = [
+            'not', 'neg', 'inc', 'dec', 'dup'
+        ]
+        self.__binary_operators = {
+            'add': '+',
+            'sub': '-',
+            'mult': '*',
+            'div': '/',
+            'mod': '%',
+            'gt': '<',
+            'lt': '>',
+            'ge': '<=',
+            'le': '>=',
+            'eq': '==',
+            'ne': '!=',
+            'and': 'and',
+            'or': 'or'
+        }
+        self.__jmp_operators = [
+            'ujp', 'tjp', 'fjp'
+        ]
+
+    def isProgramOp(self, op):
+        return op in self.__program_operators
+    
+    def isFuncOp(self, op):
+        return op in self.__function_operators
+    
+    def isIoOp(self, op):
+        return op in self.__io_operators
+    
+    def isDataOp(self, op):
+        return op in self.__datmv_operators
+    
+    def isUnaryOp(self, op):
+        return op in self.__unary_operators
+    
+    def isBinaryOp(self, op):
+        return op in self.__binary_operators
+    
+    def isJmpOp(self, op):
+        return op in self.__jmp_operators
+
+
 program_operators = [
     'nop', 'bgn', 'sym', 'end'
 ]
