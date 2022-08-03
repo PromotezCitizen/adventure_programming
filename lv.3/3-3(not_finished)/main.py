@@ -21,10 +21,10 @@ class Operators():
             'mult': '*',
             'div': '/',
             'mod': '%',
-            'gt': '<',
-            'lt': '>',
-            'ge': '<=',
-            'le': '>=',
+            'gt': '>',
+            'lt': '<',
+            'ge': '>=',
+            'le': '<=',
             'eq': '==',
             'ne': '!=',
             'and': 'and',
@@ -97,7 +97,7 @@ class UCodeCommand(Operators):
         elif line[0] == 'sym':
             for idx in range(line[3]):
                 # self._mem[line[1]][line[2]+idx] = 0
-                self._mem[line[1]].append(-1)
+                self._mem[line[1]].append(0)
         else: # end
             None
 
@@ -169,8 +169,8 @@ class UCodeCommand(Operators):
             self._stack.append(self._mem[blck][ofst])
 
         else: # sti
-            data = stack.pop()
-            arr = stack.pop()
+            data = self._stack.pop()
+            arr = self._stack.pop()
             blck = arr[0]
             ofst = arr[1]
             self._mem[blck][ofst] = data
@@ -199,22 +199,27 @@ class UCodeCommand(Operators):
         else:
             data = None
             try:
-                if len(self._stack[-1] > 1):
+                if len(self._stack[-1]) > 1: # lod lda add인 경우
                     arr = self._stack.pop()
+                    idx = self._stack.pop()
+
                     blck = arr[0]
                     ofst = arr[1]
-                    idx = self._mem[line[1]][line[2]]
-                    self._stack.append([blck, ofst+idx])
+
+                    # idx = self._mem[line[1]][line[2]] # line을 다른걸로 처리 가능해야함
+                    # 2개 pop 해서 인덱스 연산
+                    print(arr, idx)
+                    data = [blck, ofst+idx]
             except:
                 right_data = self._stack.pop()
                 left_data = self._stack.pop()
+                # print('%3d %s %3d' % (left_data, self.getBinaryOp()[line[0]], right_data))
                 data = eval('{0} {1} {2}'.format(
                         left_data,
                         self.getBinaryOp()[line[0]],
                         right_data
                     ))
             finally:
-                None
                 self._stack.append(data)
     
     # 흐름 제어
@@ -233,13 +238,14 @@ class UCodeCommand(Operators):
         return idx
 
 class UCodeProc(UCodeCommand):
-    def __init__(self, ucode, proc_starts, label_starts, stack, mem, idx):
+    def __init__(self, ucode, proc_starts, label_starts, stack, mem, idx, params):
         
         super().__init__(ucode,
             proc_starts, label_starts,
             stack, mem ) # [ [ -1 for _ in range(30) ] for _ in range(3) ], [ [] for _ in range(3)]
         self.__getted_mem = mem
         self._idx = idx
+        self._params = params
         # ucode, proc_starts, label_starts, stack, mem
     def run(self):
         turn = 0
@@ -276,9 +282,10 @@ class UCodeProc(UCodeCommand):
             self._idx += 1
             turn += 1
     
-            print('\t', self._stack)
+            print('\t%5s:' % 'stack ', self._stack)
+            print('\t%5s:' % 'mem')
             for dat in self._mem:
-                print('\t', dat)      
+                print('\t\t', dat)      
 
 
 
