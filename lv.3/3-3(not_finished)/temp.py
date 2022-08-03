@@ -24,5 +24,31 @@ arr = [ 3, 6, 9 ]
 
 t = arr[1]
 t = 4
-print(t, arr)
-print(len(t), len(arr))
+
+class t2():
+    def __init__(self, arr):
+        self.arr = arr
+    
+    def change(self):
+        self.arr[3] = 100
+
+    def print(self):
+        print(self.arr)
+
+class t1():
+    def __init__(self):
+        self.arr = [ x for x in range(5)]
+        self.test = t2(self.arr)
+        self.__asdf = 10
+
+    def run(self):
+        self.print()
+        self.test.change()
+        self.test.print()
+        self.print()
+
+    def print(self):
+        print(self.arr)
+
+test = t1()
+test.run()
