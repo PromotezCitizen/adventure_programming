@@ -95,8 +95,8 @@ class UCodeCommand(Operators):
         elif line[0] == 'bgn':
             None
         elif line[0] == 'sym':
-            print(line[1], self._mem)
-            for _ in range(line[3]):
+            for idx in range(line[3]):
+                # self._mem[line[1]][line[2]+idx] = 0
                 self._mem[line[1]].append(-1)
         else: # end
             None
@@ -111,10 +111,10 @@ class UCodeCommand(Operators):
             idx = ret_pos+1
 
         elif command == 'ldp': # 간단하게 배열 크기를 10으로 설정. 매개변수가 몇 개 들어갈지 모른다.
-            self.__call_proc_mem = [ 0 for _ in range(10) ]
+            self.__call_proc_mem = []
 
         elif command == 'push':
-            None
+            self.__call_proc_mem.append(self._stack.pop())
 
         else: # call
             procedure = line[1]
@@ -126,7 +126,7 @@ class UCodeCommand(Operators):
                 # ucode, proc_starts, label_starts, stack, mem, idx
                 UCodeProc(self._ucode,
                     self._proc_starts, self._label_starts,
-                    self._stack, self.__call_proc_mem,
+                    self._stack, self._mem, # self.__call_proc_mem
                     self._proc_starts[procedure]).run()
                 # idx = self._proc_starts[procedure]
         return idx, ret_pos
@@ -142,7 +142,6 @@ class UCodeCommand(Operators):
 
     # 데이터 이동 연산
     def _datmvOperation(self, line):
-        submem = []
         if line[0] == 'lod':
             blck = line[1]
             ofst = line[2]
@@ -152,7 +151,7 @@ class UCodeCommand(Operators):
             blck = line[1]
             ofst = line[2]
             self._stack.append([blck, ofst])
-            # 나중에 mem[blck][ofst]으로 연산
+            # 나중에 mem[blck][ofst]으로 연산. 실제로는 mem[0][1]
 
         elif line[0] == 'ldc':
             self._stack.append(line[1])
@@ -165,7 +164,6 @@ class UCodeCommand(Operators):
 
         elif line[0] == 'ldi':
             arr = self._stack.pop()
-            print('\t\t', arr, self._stack)
             blck = arr[0]
             ofst = arr[1]
             self._stack.append(self._mem[blck][ofst])
@@ -176,8 +174,7 @@ class UCodeCommand(Operators):
             blck = arr[0]
             ofst = arr[1]
             self._mem[blck][ofst] = data
-        
-        print('stack:', self._stack)
+        #print('stack:', self._stack) 
 
     # 단항 연산
     def _unaryOperation(self, line): # 스택을 직접 수정한다 가정
@@ -237,9 +234,11 @@ class UCodeCommand(Operators):
 
 class UCodeProc(UCodeCommand):
     def __init__(self, ucode, proc_starts, label_starts, stack, mem, idx):
+        
         super().__init__(ucode,
             proc_starts, label_starts,
-            stack, mem)
+            stack, mem ) # [ [ -1 for _ in range(30) ] for _ in range(3) ], [ [] for _ in range(3)]
+        self.__getted_mem = mem
         self._idx = idx
         # ucode, proc_starts, label_starts, stack, mem
     def run(self):
@@ -276,6 +275,10 @@ class UCodeProc(UCodeCommand):
 
             self._idx += 1
             turn += 1
+    
+            print('\t', self._stack)
+            for dat in self._mem:
+                print('\t', dat)      
 
 
 
