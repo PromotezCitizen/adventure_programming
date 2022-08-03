@@ -110,8 +110,8 @@ class UCodeCommand(Operators):
         elif command == 'ret':
             idx = ret_pos+1
 
-        elif command == 'ldp':
-            None
+        elif command == 'ldp': # 간단하게 배열 크기를 10으로 설정. 매개변수가 몇 개 들어갈지 모른다.
+            self.__call_proc_mem = [ 0 for _ in range(10) ]
 
         elif command == 'push':
             None
@@ -127,8 +127,8 @@ class UCodeCommand(Operators):
                 UCodeProc(self._ucode,
                     self._proc_starts, self._label_starts,
                     self._stack, self.__call_proc_mem,
-                    self._proc_starts[idx])
-                idx = self._proc_starts[procedure]
+                    self._proc_starts[procedure]).run()
+                # idx = self._proc_starts[procedure]
         return idx, ret_pos
 
     def _ioOperation(self, procedure):
@@ -244,7 +244,6 @@ class UCodeProc(UCodeCommand):
         # ucode, proc_starts, label_starts, stack, mem
     def run(self):
         turn = 0
-        idx = 0
         ret_pos = 0
 
         print(self._proc_starts)
