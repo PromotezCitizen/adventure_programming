@@ -77,7 +77,7 @@ class Operators():
         return self.__jmp_operators
 
 class UCodeCommand(Operators):
-    def __init__(self, ucode, proc_starts, label_starts, stack, mem):
+    def __init__(self, ucode, proc_starts, label_starts, stack, mem, params):
         super().__init__()
         self._ucode = ucode
         self._proc_starts = proc_starts
@@ -85,9 +85,8 @@ class UCodeCommand(Operators):
         self._stack = stack
         self._mem = mem
         self._idx = 0
-
         self.__call_proc_mem = []
-        # self._op = Operators()
+        self._params = params
 
     def _programOperation(self, line):
         if line[1] == 'nop':
@@ -95,9 +94,17 @@ class UCodeCommand(Operators):
         elif line[0] == 'bgn':
             None
         elif line[0] == 'sym':
-            for idx in range(line[3]):
-                # self._mem[line[1]][line[2]+idx] = 0
-                self._mem[line[1]].append(0)
+            if len(self._params) > 1:
+                try:
+                    self._mem[2].append(self._params[line[2]])
+                except:
+                    for idx in range(line[3]):
+                        # self._mem[line[1]][line[2]+idx] = 0
+                        self._mem[line[1]].append(0)     
+            else:
+                for idx in range(line[3]):
+                    # self._mem[line[1]][line[2]+idx] = 0
+                    self._mem[line[1]].append(0)
         else: # end
             None
 
@@ -110,7 +117,7 @@ class UCodeCommand(Operators):
         elif command == 'ret':
             idx = ret_pos+1
 
-        elif command == 'ldp': # 간단하게 배열 크기를 10으로 설정. 매개변수가 몇 개 들어갈지 모른다.
+        elif command == 'ldp':
             self.__call_proc_mem = []
 
         elif command == 'push':
@@ -127,7 +134,8 @@ class UCodeCommand(Operators):
                 UCodeProc(self._ucode,
                     self._proc_starts, self._label_starts,
                     self._stack, self._mem, # self.__call_proc_mem
-                    self._proc_starts[procedure]).run()
+                    self._proc_starts[procedure],
+                    self.__call_proc_mem).run()
                 # idx = self._proc_starts[procedure]
         return idx, ret_pos
 
@@ -164,6 +172,7 @@ class UCodeCommand(Operators):
 
         elif line[0] == 'ldi':
             arr = self._stack.pop()
+            print(arr, self._mem)
             blck = arr[0]
             ofst = arr[1]
             self._stack.append(self._mem[blck][ofst])
@@ -239,14 +248,15 @@ class UCodeCommand(Operators):
 
 class UCodeProc(UCodeCommand):
     def __init__(self, ucode, proc_starts, label_starts, stack, mem, idx, params):
-        
         super().__init__(ucode,
             proc_starts, label_starts,
-            stack, mem ) # [ [ -1 for _ in range(30) ] for _ in range(3) ], [ [] for _ in range(3)]
-        self.__getted_mem = mem
+            stack, mem,
+            params) # [ [ -1 for _ in range(30) ] for _ in range(3) ], [ [] for _ in range(3)]
+        mem[-1] = []
+        self.__params = params
         self._idx = idx
-        self._params = params
         # ucode, proc_starts, label_starts, stack, mem
+
     def run(self):
         turn = 0
         ret_pos = 0
@@ -292,7 +302,7 @@ class UCodeProc(UCodeCommand):
 class UCodeInterpreter(UCodeCommand):
     def __init__(self, folder, file):
         mem = [ [] for _ in range(3)]
-        super().__init__(None, None, None, [], mem)
+        super().__init__(None, None, None, [], mem, [])
         self.__folder_path = folder
         self.__file_path = file
 
