@@ -165,13 +165,13 @@ class HuffmanEncoding():
         with open('test.bin', 'ab') as f:
             for data in str_head:
                 f.write(data)
-
+        print(self._encoded_str)
         with open('test.bin', 'ab') as f:
-            print(len(self._encoded_str) / 8)
             for bin in spliter(self._encoded_str):
                 f.write(bytes([int(bin, 2)]))
 
     def _getEncodedStrLen(self, str_len):
+        print(str_len)
         power = 0
         while 256**power < str_len:
             power += 1

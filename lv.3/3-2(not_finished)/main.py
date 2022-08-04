@@ -6,13 +6,11 @@ from huffman import Huffman
 
 # C:\\Users\\Han\\Documents\\now.png
 # test.txt
-# encoding = HuffmanEncoding('test.txt') # encoding에서 허프만 트리는 필요없다. 
-# encoding.run()
-# #encoding.printHuffmanBin()
-# #encoding.printEncoded()
-
-# encoding.saveEncodedTree()
-# encoding.saveEncodedStr()
+encoding = HuffmanEncoding('test.txt') # encoding에서 허프만 트리는 필요없다. 
+encoding.run()
+#encoding.printHuffmanBin()
+#encoding.printEncoded()
+encoding.save()
 
 class HuffmanDecoding():
     def __init__(self, filename):
@@ -142,6 +140,22 @@ def makeHuffmanTree(header_data):
 
     return head
 
+def getEncodedStr(line):
+    power = line.pop(0)
+    share = line.pop(0)
+    remainder = line.pop(0)
+
+    print(power, share, remainder)
+
+    str_len = 0 if power == 0 else 256**power + 256*share + remainder
+    encoded_str = ""
+    for _ in range(str_len//8):
+        encoded_str += bin(line.pop(0))[2:].zfill(8)
+    if str_len % 8 != 0:
+        encoded_str += bin(line.pop(0))[2:].zfill(str_len % 8)
+
+    return encoded_str
+
 with open('test.bin', 'rb') as f:
     line = list(f.read())
 
@@ -149,16 +163,9 @@ huffman_bin_len = line.pop(0)
 
 header_data = getDecodeInfoFromBin(line, huffman_bin_len)
 
-print(line)
-
 head = makeHuffmanTree(header_data)
 
 printHuffmanTree(head)
 
-
-
-# temp = bin(line.pop(0))[2:]
-# filler = 
-
-# # https://www.delftstack.com/ko/howto/python/pad-string-with-zeros-in-python/
-# code += temp.zfill(8) # 원하는 길이가 될때까지 좌측에 추가
+encoded_str = getEncodedStr(line)
+print(encoded_str)

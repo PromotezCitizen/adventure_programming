@@ -40,7 +40,7 @@ def test(cls):
 #         print(data)
 
 
-temp = 100000
+temp = 2602
 
 power = 0
 while 256**power < temp:
@@ -55,3 +55,9 @@ with open('asdf.bin', 'wb') as f:
     f.write(bytes([power]))
     f.write(bytes([share]))
     f.write(bytes([remainder]))
+
+with open('asdf.bin', 'rb') as f:
+    temp = f.read()
+    for data in temp:
+        print(type(data))
+        print(bin(data)[2:])
