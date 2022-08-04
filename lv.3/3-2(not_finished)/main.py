@@ -1,24 +1,30 @@
 from encoding import HuffmanEncoding
+from huffman import Huffman
+
+
+
+
 # C:\\Users\\Han\\Documents\\now.png
 # test.txt
-encoding = HuffmanEncoding('test.txt') # encoding에서 허프만 트리는 필요없다. 
-encoding.run()
-#encoding.printHuffmanBin()
-#encoding.printEncoded()
+# encoding = HuffmanEncoding('test.txt') # encoding에서 허프만 트리는 필요없다. 
+# encoding.run()
+# #encoding.printHuffmanBin()
+# #encoding.printEncoded()
 
-encoding.saveEncodedTree()
-encoding.saveEncodedStr()
+# encoding.saveEncodedTree()
+# encoding.saveEncodedStr()
 
 class HuffmanDecoding():
     def __init__(self, filename):
         self._filename = filename
         self._head_data = []
         self._encoded_data = []
+        self._head = None
 
     def run(self):
         self._getDecodedData()
         self._getDecodeInfoFromBin()
-
+        self._makeHuffmanTree()
 
     def _getDecodedData(self):
         with open('test.bin', 'rb') as f:
@@ -44,9 +50,43 @@ class HuffmanDecoding():
             # print('')
             self._head_data.append({'data': data, 'code': code})
 
+    def _makeHuffmanTree(self):
+        self._head = Huffman()
 
+        for data in self._head_data: # header_data : { data, code }
+            temp = self._head
+            for idx in data['code']:
+                if idx == '0': # left
+                    if temp.getLeft() is None:
+                        temp.setLeft()
+                    temp = temp.getLeft()
+                else: # right
+                    if temp.getRight() is None:
+                        temp.setRight()
+                    temp = temp.getRight()
+            temp.setData(data['data'], None, data['code'])
 
-# HuffmanDecoding('test.bin').run()
+    def printHuffmanTree(self):
+        self._printHuffmanTree(self._head)
+
+    def _printHuffmanTree(self, huffman):
+        node = huffman.getLeft()
+        if node is not None:
+            self._printHuffmanTree(node)
+
+        node = huffman.getRight()
+        if node is not None:
+            self._printHuffmanTree(node)
+
+        data = huffman.getData()
+
+        if data['code'] is not None:
+            print(data)
+
+# decoding = HuffmanDecoding('test.bin')
+# decoding.run()
+# decoding.printHuffmanTree()
+
 trid = (lambda x, y, z, n=8: n if x < y else z)
 
 def getDecodeInfoFromBin(line, huffman_bin_len):
@@ -70,26 +110,55 @@ def getDecodeInfoFromBin(line, huffman_bin_len):
         ret.append({'data': data, 'code': code})
     return ret
 
+def printHuffmanTree(huffman):
+    node = huffman.getLeft()
+    if node is not None:
+        printHuffmanTree(node)
+
+    node = huffman.getRight()
+    if node is not None:
+        printHuffmanTree(node)
+
+    data = huffman.getData()
+
+    if data['code'] is not None:
+        print(data)
+
+def makeHuffmanTree(header_data):
+    head = Huffman()
+
+    for data in header_data: # header_data : { data, code }
+        temp = head
+        for idx in data['code']:
+            if idx == '0': # left
+                if temp.getLeft() is None:
+                    temp.setLeft()
+                temp = temp.getLeft()
+            else: # right
+                if temp.getRight() is None:
+                    temp.setRight()
+                temp = temp.getRight()
+        temp.setData(data['data'], None, data['code'])
+
+    return head
+
 with open('test.bin', 'rb') as f:
     line = list(f.read())
 
 huffman_bin_len = line.pop(0)
 
-print(huffman_bin_len)
-
-print(line)
-
 header_data = getDecodeInfoFromBin(line, huffman_bin_len)
 
 print(line)
 
-from huffman import Huffman
+head = makeHuffmanTree(header_data)
 
-for data in header_data: # header_data : { data, code }
-    for idx in data['code']:
-        print(idx)
-
-for data in header_data:
-    print(data)
+printHuffmanTree(head)
 
 
+
+# temp = bin(line.pop(0))[2:]
+# filler = 
+
+# # https://www.delftstack.com/ko/howto/python/pad-string-with-zeros-in-python/
+# code += temp.zfill(8) # 원하는 길이가 될때까지 좌측에 추가

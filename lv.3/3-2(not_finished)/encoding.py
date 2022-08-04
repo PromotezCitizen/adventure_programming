@@ -144,7 +144,11 @@ class HuffmanEncoding():
 #       ]
 #   encoded string
 
-    def saveEncodedTree(self):
+    def save(self):
+        self._saveEncodedTree()
+        self._saveEncodedStr()
+
+    def _saveEncodedTree(self):
         print(len(self._huffman_code_bin))
         with open('test.bin', 'wb') as f:
             f.write(bytes([len(self._huffman_code_bin)]))
@@ -156,8 +160,24 @@ class HuffmanEncoding():
                 for code in codes:
                     f.write(bytes([int(code, 2)]))
 
-    def saveEncodedStr(self):
+    def _saveEncodedStr(self):
+        str_head = self._getEncodedStrLen(len(self._encoded_str))
+        with open('test.bin', 'ab') as f:
+            for data in str_head:
+                f.write(data)
+
         with open('test.bin', 'ab') as f:
             print(len(self._encoded_str) / 8)
             for bin in spliter(self._encoded_str):
                 f.write(bytes([int(bin, 2)]))
+
+    def _getEncodedStrLen(self, str_len):
+        power = 0
+        while 256**power < str_len:
+            power += 1
+        power -= 1
+        str_len -= 256**power
+        share = str_len // 256
+        remainder = str_len % 256
+
+        return [bytes([power]), bytes([share]), bytes([remainder])]
