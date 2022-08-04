@@ -18,6 +18,7 @@ class HuffmanDecoding():
         self._head_data = []
         self._encoded_data = []
         self._head = None
+        self._encoded_str = None
 
     def run(self):
         self._getDecodedData()
@@ -81,6 +82,22 @@ class HuffmanDecoding():
         if data['code'] is not None:
             print(data)
 
+    def _getEncodedStr(self):
+        power = self._encoded_data.pop(0)
+        share = self._encoded_data.pop(0)
+        remainder = self._encoded_data.pop(0)
+
+        print(power, share, remainder)
+
+        str_len = (0 if power == 0 else 256**power + 256*share + remainder)
+        self._encoded_str = ""
+        for _ in range(str_len//8):
+            self._encoded_str += bin(self._encoded_data.pop(0))[2:].zfill(8)
+        if str_len % 8 != 0:
+            self._encoded_str += bin(self._encoded_data.pop(0))[2:].zfill(str_len % 8)
+
+
+
 # decoding = HuffmanDecoding('test.bin')
 # decoding.run()
 # decoding.printHuffmanTree()
@@ -125,8 +142,10 @@ def printHuffmanTree(huffman):
 def makeHuffmanTree(header_data):
     head = Huffman()
 
+    print(header_data)
     for data in header_data: # header_data : { data, code }
         temp = head
+        #print_str = ""
         for idx in data['code']:
             if idx == '0': # left
                 if temp.getLeft() is None:
@@ -136,6 +155,8 @@ def makeHuffmanTree(header_data):
                 if temp.getRight() is None:
                     temp.setRight()
                 temp = temp.getRight()
+        #    print_str += idx
+        #print("%20s %20s" % (data['code'], print_str))
         temp.setData(data['data'], None, data['code'])
 
     return head
@@ -165,7 +186,34 @@ header_data = getDecodeInfoFromBin(line, huffman_bin_len)
 
 head = makeHuffmanTree(header_data)
 
-printHuffmanTree(head)
-
 encoded_str = getEncodedStr(line)
-print(encoded_str)
+
+result = []
+temp = head
+result_str = ""
+for data in encoded_str:
+    if data == '0':
+        if temp.getLeft() is None:
+            print(chr(temp.getData()['data']))
+            result.append(temp.getData()['data'])
+            temp = head
+            print(result_str)
+            result_str = ""
+        else:
+            temp = temp.getLeft()
+
+    else:
+        if temp.getRight() is None:
+            print(chr(temp.getData()['data']))
+            result.append(temp.getData()['data'])
+            temp = head
+            print(result_str)
+            result_str = ""
+        else:
+            temp = temp.getRight()
+        
+    result_str += data
+
+with open('qwer.txt', 'wb') as f:
+    for data in result:
+        f.write(bytes([data]))
