@@ -47,17 +47,20 @@ class HuffmanEncoding():
         self._huffman_dict = {}
         self._huffman_len_histogram = {}
         self._huffman_code_bin = {}
+        self._lines = None
         self._head = None
+        self._encoded_str = ""
         self._filename = filename
 
     def run(self):
         self._makeHuffmanDict(self._filename)
         self._makeHuffmanTree()
         self._setHuffmanCode(self._head)
+        self._encodingStr()
 
     def _makeHuffmanDict(self, filename):
-        lines = self._getBinLines(filename)
-        data_dict = self._getBinDict(lines)
+        self._lines = self._getBinLines(filename)
+        data_dict = self._getBinDict(self._lines)
         self._getHuffmanDict(data_dict)
 
     def _getBinLines(self, filename):
@@ -104,8 +107,9 @@ class HuffmanEncoding():
                 self._huffman_len_histogram[len(code)] += 1
             except:
                 self._huffman_len_histogram[len(code)] = 1
-            self._huffman_code_bin[data['data']] = code
-            huffman.setData(data['data'], data['cnt'], code)
+            finally:
+                self._huffman_code_bin[data['data']] = code
+                huffman.setData(data['data'], data['cnt'], code)
             # print(huffman.getData()) # only test
 
     def _makeHuffmanTree(self):
@@ -120,12 +124,10 @@ class HuffmanEncoding():
             huffman_right = self._huffman_dict.popitem()[1]
             data = huffman_right.getData()
             temp_cnt = data['cnt']
-            #huffman_right = Huffman(data['data'], data['cnt'])
 
             huffman_left = self._huffman_dict.popitem()[1]
             data = huffman_left.getData()
             temp_cnt += data['cnt']
-            #huffman_left = Huffman(data['data'], data['cnt'])
 
             huffman = Huffman(temp_data, temp_cnt)
             huffman.setRight(huffman_right)
@@ -156,11 +158,71 @@ class HuffmanEncoding():
         for key, val in self._huffman_code_bin.items():
             print(key, val)
 
-encoding = HuffmanEncoding('test.txt')
+    def printEncoded(self):
+        print(self._encoded_str)
+        for binary in spliter(self._encoded_str):
+            print(binary)
+
+    def _encodingStr(self):
+        self._encoded_str = ""
+        for list in self._lines:
+            for data in list:
+                self._encoded_str += self._huffman_code_bin[data]
+
+# 파일 구조
+#   len of huffman_code num
+#   huffman code key-value
+#       [
+#           data
+#           len(8byte씩 나눔)
+#           encoded_data
+#       ]
+#   encoded string
+
+    def saveEncodedTree(self):
+        print(len(self._huffman_code_bin))
+        with open('test.bin', 'wb') as f:
+            f.write(bytes([len(self._huffman_code_bin)]))
+            for key, val in self._huffman_code_bin.items():
+                codes = spliter(val)
+                print(key, bytes([key]), codes, [ int(code, 2) for code in codes ])
+                f.write(bytes([key]))
+                f.write(bytes([len(val)]))
+                for code in codes:
+                    f.write(bytes([int(code, 2)]))
+
+    def saveEncodedStr(self):
+        with open('test.bin', 'ab') as f:
+            print(len(self._encoded_str) / 8)
+            for bin in spliter(self._encoded_str):
+                f.write(bytes([int(bin, 2)]))
+
+def spliter(arr, size=8):
+    ret = []
+    for idx in range(0, len(arr), size):
+        ret.append(arr[idx:idx+size])
+    return ret
+
+# https://www.delftstack.com/ko/howto/python/how-to-convert-int-to-bytes-in-python-2-and-python-3/
+# int to byte
+
+# https://www.daleseo.com/python-int-bases/
+# 
+
+encoding = HuffmanEncoding('C:\\Users\\Han\\Documents\\now.png') # encoding에서 허프만 트리는 필요없다. 
 encoding.run()
-encoding.printHuffmanBin()
+#encoding.printHuffmanBin()
+#encoding.printEncoded()
+# save tree
+# [
+#   data
+#   len
+#   encoded_data
+# ]
 
 
+encoding.saveEncodedTree()
+encoding.saveEncodedStr()
 
 
 '''
