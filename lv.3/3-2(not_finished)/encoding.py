@@ -23,18 +23,23 @@ class HuffmanEncoding():
 
     def _getBinLines(self, filename):
         with open(filename, 'rb') as f:
-            lines = f.readlines()
-            lines = [ list(x) for x in lines ]
+            # lines = [ list(x) for x in f.readlines() ]
+            lines = list(f.read())
         return lines
 
     def _getBinDict(self, lines):
         data_dict = {}
-        for line in lines:
-            for data in line:
-                try:
-                    data_dict[data] += 1
-                except:
-                    data_dict[data] = 1
+        for data in lines:
+            try:
+                data_dict[data] += 1
+            except:
+                data_dict[data] = 1
+        # for line in lines:
+        #     for data in line:
+        #         try:
+        #             data_dict[data] += 1
+        #         except:
+        #             data_dict[data] = 1
 
         return data_dict
 
@@ -123,9 +128,11 @@ class HuffmanEncoding():
 
     def _encodingStr(self):
         self._encoded_str = ""
-        for list in self._lines:
-            for data in list:
-                self._encoded_str += self._huffman_code_bin[data]
+        for data in self._lines:
+            self._encoded_str += self._huffman_code_bin[data]
+        # for list in self._lines:
+        #     for data in list:
+        #         self._encoded_str += self._huffman_code_bin[data]
 
 # 파일 구조
 #   len of huffman_code num

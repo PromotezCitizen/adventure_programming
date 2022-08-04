@@ -8,3 +8,19 @@ encoding.run()
 
 encoding.saveEncodedTree()
 encoding.saveEncodedStr()
+
+class HuffmanDecoding():
+    def __init__(self, filename):
+        self._filename = filename
+
+    def run(self):
+        None
+
+with open('test.bin', 'rb') as f:
+    bin = list(f.read())
+    huffman_bin_len = bin.pop(0)
+    print(huffman_bin_len)
+    for idx in range(huffman_bin_len):
+        data = bin.pop(0)
+        code_len = bin.pop(0)
+    print(bin)
