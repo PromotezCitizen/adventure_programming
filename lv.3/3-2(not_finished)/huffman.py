@@ -11,7 +11,6 @@ class Huffman():
     @dispatch()
     def setRight(self):
         self._right = Huffman()
-
     @dispatch(object)
     def setRight(self, huffman):
         self._right = huffman
@@ -22,7 +21,6 @@ class Huffman():
     @dispatch()
     def setLeft(self):
         self._left = Huffman()
-
     @dispatch(object)
     def setLeft(self, huffman):
         self._left = huffman
@@ -55,38 +53,111 @@ huffman.getLeft().getLeft().getLeft().print()
 
 # 0x242
 
-data_dict = {}
 
-with open('test.txt', 'rb') as f:
-    lines = f.readlines()
-    lines = [ list(x) for x in lines ]
+def getBinLines(filename):
+    with open(filename, 'rb') as f:
+        lines = f.readlines()
+        lines = [ list(x) for x in lines ]
+    return lines
 
-for line in lines:
-    for data in line:
-        try:
-            data_dict[data] += 1
-        except:
-            data_dict[data] = 1
+def getBinDict(lines):
+    data_dict = {}
+    for line in lines:
+        for data in line:
+            try:
+                data_dict[data] += 1
+            except:
+                data_dict[data] = 1
+
+    return data_dict
+
+def getHuffmanDict(data_dict):
+    huffman_dict = {}
+    for key, val in data_dict.items():
+        huffman_dict[key] = Huffman(key, val)
+
+    return huffman_dict
+
+def isInt(val):
+    ret_val = True
+    try:
+        int(val)
+    except:
+        ret_val = False
+    return ret_val
+
+def printDict(huffman, data=""):
+    #print('left: {0}, right:{1}'.format(type(huffman.getLeft()), type(huffman.getRight())))
+    node = huffman.getLeft()
+    if node is not None:
+        printDict(node, data+'0')
+
+    node = huffman.getRight()
+    if node is not None:
+        printDict(node, data+'1')
+
+    print_data = huffman.getData()
+
+    if isInt(print_data['data']):
+        print(print_data)
+
+
+lines = getBinLines('test.txt')
+data_dict = getBinDict(lines)
+huffman_dict = getHuffmanDict(data_dict)
+
+
+# data_dict = {}
+# for line in lines:
+#     for data in line:
+#         try:
+#             data_dict[data] += 1
+#         except:
+#             data_dict[data] = 1
 # print(lines)
+
+# huffman_dict = {}
+# for key, val in data_dict.items():
+#     data_dict[key] = Huffman(key, val)
 
 temp_data = ''
 temp_data_cnt = None
 
-temp_arr = []
+# for val in data_dict.values():
+#     print(val.getData())
+# print(len(data_dict))
 
-huffman_dict = {}
-for key, val in data_dict.items():
-    data_dict[key] = Huffman(key, val)
+while len(huffman_dict) > 1:
+    # https://blockdmask.tistory.com/566 - dict sort
+    huffman_dict = dict(sorted(huffman_dict.items(), key=lambda x: x[1].getData()['cnt'], reverse=True))
 
-# https://blockdmask.tistory.com/566 - dict sort
-data_dict = dict(sorted(data_dict.items(), key=lambda x: x[1].getData()['cnt'], reverse=True))
+    temp_data += '-'
 
-# for key, val in data_dict.items():
-#     data_dict[key] = Huffman(key, val)
+    huffman_right = huffman_dict.popitem()[1]
+    data = huffman_right.getData()
+    temp_cnt = data['cnt']
+    #huffman_right = Huffman(data['data'], data['cnt'])
 
-for val in data_dict.values():
-    print(val.getData())
+    huffman_left = huffman_dict.popitem()[1]
+    data = huffman_left.getData()
+    temp_cnt += data['cnt']
+    #huffman_left = Huffman(data['data'], data['cnt'])
 
+    huffman = Huffman(temp_data, temp_cnt)
+    huffman.setRight(huffman_right)
+    huffman.setLeft(huffman_left)
+
+    huffman_dict[temp_data] = huffman
+
+head = huffman_dict.popitem()[1]
+# print(head.getLeft(), head.getRight())
+printDict(head, '')
+
+
+
+
+
+'''
 # head = Huffman()
 
 # temp_data += '-'
@@ -110,3 +181,4 @@ for val in data_dict.values():
 
 # temp_arr.append()
 # data_dict[temp_data] = temp_data_cnt
+'''
