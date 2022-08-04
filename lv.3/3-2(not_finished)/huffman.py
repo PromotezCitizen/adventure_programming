@@ -42,117 +42,123 @@ class Huffman():
     def nodes(self):
         None
 
-huffman = Huffman()
-next = huffman
-for _ in range(3):
-    next.setLeft()
-    next = next.getLeft()
-next.setData('a', 10, '100010')
+class HuffmanEncoding():
+    def __init__(self, filename):
+        self._huffman_dict = {}
+        self._huffman_len_histogram = {}
+        self._huffman_code_bin = {}
+        self._head = None
+        self._filename = filename
 
-huffman.getLeft().getLeft().getLeft().print()
+    def run(self):
+        self._makeHuffmanDict(self._filename)
+        self._makeHuffmanTree()
+        self._setHuffmanCode(self._head)
 
-# 0x242
+    def _makeHuffmanDict(self, filename):
+        lines = self._getBinLines(filename)
+        data_dict = self._getBinDict(lines)
+        self._getHuffmanDict(data_dict)
 
+    def _getBinLines(self, filename):
+        with open(filename, 'rb') as f:
+            lines = f.readlines()
+            lines = [ list(x) for x in lines ]
+        return lines
 
-def getBinLines(filename):
-    with open(filename, 'rb') as f:
-        lines = f.readlines()
-        lines = [ list(x) for x in lines ]
-    return lines
+    def _getBinDict(self, lines):
+        data_dict = {}
+        for line in lines:
+            for data in line:
+                try:
+                    data_dict[data] += 1
+                except:
+                    data_dict[data] = 1
 
-def getBinDict(lines):
-    data_dict = {}
-    for line in lines:
-        for data in line:
+        return data_dict
+
+    def _getHuffmanDict(self, data_dict):
+        for key, val in data_dict.items():
+            self._huffman_dict[key] = Huffman(key, val)
+
+    def _isInt(self, val):
+        try:
+            int(val)
+        except:
+            return False
+        return True
+
+    def _setHuffmanCode(self, huffman, code=""):
+        node = huffman.getLeft()
+        if node is not None:
+            self._setHuffmanCode(node, code+'0')
+
+        node = huffman.getRight()
+        if node is not None:
+            self._setHuffmanCode(node, code+'1')
+
+        data = huffman.getData()
+
+        if self._isInt(data['data']):
             try:
-                data_dict[data] += 1
+                self._huffman_len_histogram[len(code)] += 1
             except:
-                data_dict[data] = 1
+                self._huffman_len_histogram[len(code)] = 1
+            self._huffman_code_bin[data['data']] = code
+            huffman.setData(data['data'], data['cnt'], code)
+            # print(huffman.getData()) # only test
 
-    return data_dict
+    def _makeHuffmanTree(self):
+        temp_data = ''
 
-def getHuffmanDict(data_dict):
-    huffman_dict = {}
-    for key, val in data_dict.items():
-        huffman_dict[key] = Huffman(key, val)
+        while len(self._huffman_dict) > 1:
+            # https://blockdmask.tistory.com/566 - dict sort
+            self._huffman_dict = dict(sorted(self._huffman_dict.items(), key=lambda x: x[1].getData()['cnt'], reverse=True))
 
-    return huffman_dict
+            temp_data += '-'
 
-def isInt(val):
-    ret_val = True
-    try:
-        int(val)
-    except:
-        ret_val = False
-    return ret_val
+            huffman_right = self._huffman_dict.popitem()[1]
+            data = huffman_right.getData()
+            temp_cnt = data['cnt']
+            #huffman_right = Huffman(data['data'], data['cnt'])
 
-def printDict(huffman, data=""):
-    #print('left: {0}, right:{1}'.format(type(huffman.getLeft()), type(huffman.getRight())))
-    node = huffman.getLeft()
-    if node is not None:
-        printDict(node, data+'0')
+            huffman_left = self._huffman_dict.popitem()[1]
+            data = huffman_left.getData()
+            temp_cnt += data['cnt']
+            #huffman_left = Huffman(data['data'], data['cnt'])
 
-    node = huffman.getRight()
-    if node is not None:
-        printDict(node, data+'1')
+            huffman = Huffman(temp_data, temp_cnt)
+            huffman.setRight(huffman_right)
+            huffman.setLeft(huffman_left)
 
-    print_data = huffman.getData()
+            self._huffman_dict[temp_data] = huffman
 
-    if isInt(print_data['data']):
-        print(print_data)
+        self._head = self._huffman_dict.popitem()[1]
 
+    def printHuffmanTree(self):
+        self._printHuffmanTree(self._head)
 
-lines = getBinLines('test.txt')
-data_dict = getBinDict(lines)
-huffman_dict = getHuffmanDict(data_dict)
+    def _printHuffmanTree(self, huffman):
+        node = huffman.getLeft()
+        if node is not None:
+            self._printHuffmanTree(node)
 
+        node = huffman.getRight()
+        if node is not None:
+            self._printHuffmanTree(node)
 
-# data_dict = {}
-# for line in lines:
-#     for data in line:
-#         try:
-#             data_dict[data] += 1
-#         except:
-#             data_dict[data] = 1
-# print(lines)
+        data = huffman.getData()
 
-# huffman_dict = {}
-# for key, val in data_dict.items():
-#     data_dict[key] = Huffman(key, val)
+        if self._isInt(data['data']):
+            print(data)
 
-temp_data = ''
-temp_data_cnt = None
+    def printHuffmanBin(self):
+        for key, val in self._huffman_code_bin.items():
+            print(key, val)
 
-# for val in data_dict.values():
-#     print(val.getData())
-# print(len(data_dict))
-
-while len(huffman_dict) > 1:
-    # https://blockdmask.tistory.com/566 - dict sort
-    huffman_dict = dict(sorted(huffman_dict.items(), key=lambda x: x[1].getData()['cnt'], reverse=True))
-
-    temp_data += '-'
-
-    huffman_right = huffman_dict.popitem()[1]
-    data = huffman_right.getData()
-    temp_cnt = data['cnt']
-    #huffman_right = Huffman(data['data'], data['cnt'])
-
-    huffman_left = huffman_dict.popitem()[1]
-    data = huffman_left.getData()
-    temp_cnt += data['cnt']
-    #huffman_left = Huffman(data['data'], data['cnt'])
-
-    huffman = Huffman(temp_data, temp_cnt)
-    huffman.setRight(huffman_right)
-    huffman.setLeft(huffman_left)
-
-    huffman_dict[temp_data] = huffman
-
-head = huffman_dict.popitem()[1]
-# print(head.getLeft(), head.getRight())
-printDict(head, '')
-
+encoding = HuffmanEncoding('test.txt')
+encoding.run()
+encoding.printHuffmanBin()
 
 
 
