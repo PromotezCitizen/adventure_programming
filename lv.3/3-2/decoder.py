@@ -12,6 +12,7 @@ class HuffmanDecoder(Huffman):
 
         _ = self._getBinLines() # 모든 문자열 가져오기
 
+        self._removeExtensionsInfo()
         self._getDecodeInfo() # 헤더 정보 가져오기
         self._makeHuffmanTree() # 헤더 정보를 통해 허프만 트리 구축
 
@@ -21,16 +22,24 @@ class HuffmanDecoder(Huffman):
 
 
         # print(type(ord(data)), ord(data))
-    def _removeExtensions(self):
+    def _removeExtensionsInfo(self):
         self._lines.pop(0)
         self._lines.pop(0)
 
-        origin_ext_len = ord(self._lines.pop(0))
-        for _ in range(origin_ext_len):
-            self._origin_ext.append(chr(ord(self._lines.pop(0)))) # 확장자 복구
+        origin_ext_len = self._lines.pop(0) # 확장자 길이
+        if origin_ext_len > 0:
+            for _ in range(origin_ext_len):
+                self._origin_ext.append(chr(self._lines.pop(0))) # 확장자 복구
+            self._origin_ext.insert(0, '.')
+        
 
     def _getDecodeInfo(self):
         # [ data(8), code_len(8), code(n) ] 헤더는 왼쪽과 같은 방식으로 저장됨. 괄호 안의 숫자는 byte
+        with open('middle.bin', 'wb') as f:
+            for data in self._lines:
+                f.write(bytes([data]))
+
+
         huffman_bin_len = self._lines.pop(0)
         for _ in range(huffman_bin_len):
             data = self._lines.pop(0)
@@ -93,7 +102,6 @@ class HuffmanDecoder(Huffman):
                     if idx != max_len: temp = self._head_tree.getLeft()
                 else:
                     temp = temp.getLeft()
-
             else:
                 if temp.getRight() is None:
                     self._result.append(temp.getData()['data'])
@@ -104,6 +112,6 @@ class HuffmanDecoder(Huffman):
 
     def save(self):
         filename = input("저장할 파일 이름 입력 >> ")
-        with open(filename, 'wb') as f:
+        with open(filename + "".join(self._origin_ext), 'wb') as f:
             for data in self._result:
                 f.write(bytes([data]))

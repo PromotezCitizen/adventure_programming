@@ -26,7 +26,6 @@ class Huffman():
     
     def __exit__(self, exc_type, exc_val, exc_tb):
         print(exc_type, exc_val, exc_tb)
-        None
 
     def _getBinLines(self):
         filename = input("인코딩 할/된 파일 이름 입력 >> ")
