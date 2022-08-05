@@ -81,7 +81,7 @@ class HuffmanEncoding():
         while len(self._huffman_dict) > 1:
             # https://blockdmask.tistory.com/566 - dict sort
             self._huffman_dict = dict(sorted(self._huffman_dict.items(), key=lambda x: x[1].getData()['cnt'], reverse=True))
-
+    
             temp_data += '-'
 
             huffman_right = self._huffman_dict.popitem()[1]
@@ -91,7 +91,7 @@ class HuffmanEncoding():
             huffman_left = self._huffman_dict.popitem()[1]
             data = huffman_left.getData()
             temp_cnt += data['cnt']
-
+            
             huffman = Huffman(temp_data, temp_cnt)
             huffman.setRight(huffman_right)
             huffman.setLeft(huffman_left)
@@ -116,6 +116,21 @@ class HuffmanEncoding():
 
         if self._isInt(data['data']):
             print(data)
+
+    def printHuffmanTreeLMR(self):
+        self._printHuffmanTreeLMR(self._head)
+
+    def _printHuffmanTreeLMR(self, huffman):
+        node = huffman.getLeft()
+        if node is not None:
+            self._printHuffmanTree(node)
+
+        node = huffman.getRight()
+        if node is not None:
+            self._printHuffmanTree(node)
+
+        data = huffman.getData()
+        print(data)
 
     def printHuffmanBin(self):
         for key, val in self._huffman_code_bin.items():
@@ -144,12 +159,12 @@ class HuffmanEncoding():
 #       ]
 #   encoded string
 
-    def save(self):
-        self._saveEncodedTree()
-        self._saveEncodedStr()
+    def save(self, filename):
+        self._saveEncodedTree(filename)
+        self._saveEncodedStr(filename)
 
-    def _saveEncodedTree(self):
-        with open('test.bin', 'wb') as f:
+    def _saveEncodedTree(self, filename):
+        with open(filename, 'wb') as f:
             f.write(bytes([len(self._huffman_code_bin)]))
             for key, val in self._huffman_code_bin.items():
                 codes = spliter(val)
@@ -159,13 +174,13 @@ class HuffmanEncoding():
                 for code in codes:
                     f.write(bytes([int(code, 2)]))
 
-    def _saveEncodedStr(self):
+    def _saveEncodedStr(self, filename):
         str_head = self._getEncodedStrLen(len(self._encoded_str))
-        with open('test.bin', 'ab') as f:
+        with open(filename, 'ab') as f:
             for data in str_head:
                 f.write(data)
 
-        with open('test.bin', 'ab') as f:
+        with open(filename, 'ab') as f:
             for bin in spliter(self._encoded_str):
                 f.write(bytes([int(bin, 2)]))
 

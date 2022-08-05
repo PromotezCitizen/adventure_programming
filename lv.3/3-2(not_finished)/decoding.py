@@ -9,14 +9,17 @@ class HuffmanDecoding():
         self._encoded_str = None
         self._result = []
 
+        self._huffman_code_bin = {}
+
     def run(self):
-        self._getDecodedData()
+        self._getDecodedData(self._filename)
         self._getDecodeInfoFromBin()
         self._makeHuffmanTree()
+        self._getEncodedStr()
         self._decodeStr()
 
-    def _getDecodedData(self):
-        with open('test.bin', 'rb') as f:
+    def _getDecodedData(self, filename):
+        with open(filename, 'rb') as f:
             self._encoded_data = list(f.read())
 
     def _getDecodeInfoFromBin(self):
@@ -37,7 +40,8 @@ class HuffmanDecoding():
                 code_len -= 8
             # print(data, code_len, code)
             # print('')
-            self._head_data.append({'data': data, 'code': code})
+            self._head_data.append({'data': data, 'code_len': len(code), 'code': code})
+            self._huffman_code_bin[data] = code
 
     def _makeHuffmanTree(self):
         self._head = Huffman()
@@ -48,12 +52,14 @@ class HuffmanDecoding():
                 if idx == '0': # left
                     if temp.getLeft() is None:
                         temp.setLeft()
+                        temp.setData('-', -1, '')
                     temp = temp.getLeft()
                 else: # right
                     if temp.getRight() is None:
                         temp.setRight()
+                        temp.setData('-', -1, '')
                     temp = temp.getRight()
-            temp.setData(data['data'], None, data['code'])
+            temp.setData(data['data'], data['code_len'], data['code'])
 
     def printHuffmanTree(self):
         self._printHuffmanTree(self._head)
@@ -69,15 +75,31 @@ class HuffmanDecoding():
 
         data = huffman.getData()
 
-        if data['code'] is not None:
+        if data['cnt'] > 0:
             print(data)
+
+    def printHuffmanTreeLMR(self):
+        self._printHuffmanTreeLMR(self._head)
+
+    def _printHuffmanTreeLMR(self, huffman):
+        node = huffman.getLeft()
+        if node is not None:
+            self._printHuffmanTreeLMR(node)
+
+        node = huffman.getRight()
+        if node is not None:
+            self._printHuffmanTreeLMR(node)
+
+        data = huffman.getData()
+
+        print(data)
 
     def _getEncodedStr(self):
         power = self._encoded_data.pop(0)
         share = self._encoded_data.pop(0)
         remainder = self._encoded_data.pop(0)
 
-        print(power, share, remainder)
+        # print(power, share, remainder)
 
         str_len = (0 if power == 0 else 256**power + 256*share + remainder)
         self._encoded_str = ""
@@ -90,30 +112,28 @@ class HuffmanDecoding():
     def _decodeStr(self):
         temp = self._head
         result_str = ""
+        #print(self._encoded_str)
         for data in self._encoded_str:
             if data == '0':
                 if temp.getLeft() is None:
-                    print(chr(temp.getData()['data']))
+                    #print(chr(temp.getData()['data']), result_str)
                     self._result.append(temp.getData()['data'])
                     temp = self._head
-                    print(result_str)
                     result_str = ""
                 else:
                     temp = temp.getLeft()
 
             else:
                 if temp.getRight() is None:
-                    print(chr(temp.getData()['data']))
+                    #print(chr(temp.getData()['data']), result_str)
                     self._result.append(temp.getData()['data'])
                     temp = self._head
-                    print(result_str)
                     result_str = ""
                 else:
                     temp = temp.getRight()
-                
             result_str += data
 
-    def write(self):
-        with open('qwer.txt', 'wb') as f:
+    def save(self, filename):
+        with open(filename, 'wb') as f:
             for data in self._result:
                 f.write(bytes([data]))
