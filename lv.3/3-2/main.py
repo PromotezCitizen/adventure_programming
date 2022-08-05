@@ -13,12 +13,12 @@ encoder.save()
 
 print('='*30)
 
-decoder = HuffmanDecoder()
-decoder.decode()
-# encoder.printHuffmanKeyVal()
-# decoder.printHuffmanTree()
-# decoder.printHuffmanTreeALL()
-decoder.save()
+# decoder = HuffmanDecoder()
+# decoder.decode()
+# # encoder.printHuffmanKeyVal()
+# # decoder.printHuffmanTree()
+# # decoder.printHuffmanTreeALL()
+# decoder.save()
 
 # 임의의 텍스트 파일이 주어지면 허프만 코딩 방법을 이용하여 자료를 압축하며
 #   압축된 파일을 해제하는 프로그램을 작성한다.
@@ -38,3 +38,8 @@ decoder.save()
 # ① GUI 구현 - 해볼까?
 # ② ASCII 문자 이외의 문자(한글, 유니코드 등)에 대해서도 동작하도록 한다. - 동작은 함. binary로 읽어서 binary로 쓰기 때문.
 #   본 기능의 구현은 쉽지 않을 것으로 판단됨 - 문제 분석 시 구현 가능성에 대해 검토
+
+
+# 추가 기능
+# 1) 자동 인코딩/디코딩
+# 2) 복호화 시 자동으로 확장자 명 추가

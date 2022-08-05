@@ -8,9 +8,16 @@ class HuffmanEncoder(Huffman):
                                             # 허프만 트리 만들때만 사용
         self._huffman_len_histogram = {}    # histogram에 저장용.
                                             # 허프만 부호화된 문자의 길이에 관한 histogram
+        self._origin_ext = []
 
     def encode(self):
-        self._getBinLines() # 모든 문자열 가져오기
+        self.__init__()
+
+        filename = self._getBinLines() # 모든 문자열 가져오기
+
+        temp = filename.split('.')
+        if len(temp) > 1:
+            self._origin_ext = temp[-1]
 
         self._makeHuffmanDict() # 허프만 트리를 만들 기본 딕셔너리 생성. { key:data, value:HuffmanNode }
         self._makeHuffmanTree() # 허프만 트리 정보가 담긴 딕셔너리를 이용해 허프만 트리 생성.
@@ -88,11 +95,21 @@ class HuffmanEncoder(Huffman):
 
     def save(self):
         filename = input("저장할 파일 이름 입력 >> ")
+        self._saveFileHeader(filename)
         self._saveEncodedTree(filename)
         self._saveEncodedStr(filename)
 
-    def _saveEncodedTree(self, filename):
+    def _saveFileHeader(self, filename):
         with open(filename, 'wb') as f:
+            f.write(bytes([0xFF]))
+            f.write(bytes([0xFF])) # file header. 0xFF FF로 저장
+
+            f.write(bytes([len(self._origin_ext)])) # 원래 파일의 확장자 길이
+            for ext in self._origin_ext: # 원래 파일의 확장자 이름
+                f.write(bytes([ord(ext)]))
+
+    def _saveEncodedTree(self, filename):
+        with open(filename, 'ab') as f:
             f.write(bytes([len(self._header_data)]))
             for key, val in self._header_data.items():
                 codes = spliter(val)
@@ -104,7 +121,7 @@ class HuffmanEncoder(Huffman):
     def _saveEncodedStr(self, filename):
         with open(filename, 'ab') as f:
             for data in self._getEncodedStrLen(len(self._encoded_str)):
-                f.write(data)
+                f.write(data) # 인코딩된 문자열의 길이 저장
             
             for bin in spliter(self._encoded_str):
                 f.write(bytes([int(bin, 2)]))

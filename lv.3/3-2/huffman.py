@@ -1,4 +1,7 @@
 # 파일 구조
+#   magic number(2byte)
+#   len of extension(1byte)
+#   extensions(<len of extension>bytes)
 #   len of huffman_code num
 #   huffman code key-value
 #    eg)[
@@ -25,9 +28,10 @@ class Huffman():
         None
 
     def _getBinLines(self):
-        file_name = input("인코딩 할/된 파일 이름 입력 >> ")
-        with open(file_name, 'rb') as f:
+        filename = input("인코딩 할/된 파일 이름 입력 >> ")
+        with open(filename, 'rb') as f:
             self._lines = list(f.read())
+        return filename
 
     def _isInt(self, val):
         try:
