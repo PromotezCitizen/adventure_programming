@@ -43,6 +43,11 @@ class HuffmanDecoding():
             self._head_data.append({'data': data, 'code_len': len(code), 'code': code})
             self._huffman_code_bin[data] = code
 
+
+    def test(self):
+        print(self._head.getLeft().getLeft().getLeft().getLeft().getRight().getLeft())
+        print(self._head.getLeft().getLeft().getLeft().getLeft().getRight().getData())
+
     def _makeHuffmanTree(self):
         self._head = Huffman()
 
@@ -112,26 +117,29 @@ class HuffmanDecoding():
     def _decodeStr(self):
         temp = self._head
         result_str = ""
-        #print(self._encoded_str)
-        for data in self._encoded_str:
+        max_len = len(self._encoded_str)
+        print(self._encoded_str)
+        for idx, data in enumerate(self._encoded_str):
             if data == '0':
                 if temp.getLeft() is None:
-                    #print(chr(temp.getData()['data']), result_str)
+                    print(chr(temp.getData()['data']), result_str)
                     self._result.append(temp.getData()['data'])
-                    temp = self._head
+                    if idx != max_len: temp = self._head.getLeft()
                     result_str = ""
                 else:
                     temp = temp.getLeft()
 
             else:
                 if temp.getRight() is None:
-                    #print(chr(temp.getData()['data']), result_str)
+                    print(chr(temp.getData()['data']), result_str)
                     self._result.append(temp.getData()['data'])
-                    temp = self._head
+                    if idx != max_len: temp = self._head.getRight()
                     result_str = ""
                 else:
                     temp = temp.getRight()
             result_str += data
+            print(data, end="")
+        self._result.append(temp.getData()['data'])
 
     def save(self, filename):
         with open(filename, 'wb') as f:

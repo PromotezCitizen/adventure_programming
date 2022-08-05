@@ -7,7 +7,7 @@ encoding = HuffmanEncoding('test.txt') # encoding에서 허프만 트리는 필�
 encoding.run()
 #encoding.printHuffmanBin()
 #encoding.printEncoded()
-encoding.printHuffmanTreeLMR()
+# encoding.printHuffmanTreeLMR()
 encoding.save('test.bin')
 
 print('')
@@ -15,6 +15,7 @@ print('')
 decoding = HuffmanDecoding('test.bin')
 decoding.run()
 # decoding.printHuffmanTree()
-decoding.printHuffmanTreeLMR()
+# decoding.printHuffmanTreeLMR()
+# decoding.test()
 decoding.save('qwer.txt')
 
