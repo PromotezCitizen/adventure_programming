@@ -1,52 +1,50 @@
-from multipledispatch import dispatch
-
 class Huffman():
-    def __init__(self, data=None, cnt=None, code=None):
-        self._data = data
-        self._cnt = cnt
-        self._code = code
-        self._right = None
-        self._left = None
+    def __init__(self, filename):
+        self._lines = None
+        self._head = None
+        self._encoded_str = ""
+        self._filename = filename
 
-    @dispatch()
-    def setRight(self):
-        self._right = Huffman()
-    @dispatch(object)
-    def setRight(self, huffman):
-        self._right = huffman
+    def _getBinLines(self):
+        with open(self._filename, 'rb') as f:
+            self._lines = list(f.read())
 
-    def getRight(self): # goRight
-        return self._right
+    def _isInt(self, val):
+        try:
+            int(val)
+        except:
+            return False
+        return True
 
-    @dispatch()
-    def setLeft(self):
-        self._left = Huffman()
-    @dispatch(object)
-    def setLeft(self, huffman):
-        self._left = huffman
-    
-    def getLeft(self): # goLeft
-        return self._left
+    def printHuffmanTree(self):
+        self._printHuffmanTree(self._head)
 
-    def print(self):
-        print('data: {0}, cnt: {1}, code: {2}'.format(self._data, self._cnt, self._code))
+    def _printHuffmanTree(self, huffman):
+        node = huffman.getLeft()
+        if node is not None:
+            self._printHuffmanTree(node)
 
-    def setData(self, data, cnt, code):
-        self._data = data
-        self._cnt = cnt
-        self._code = code
+        node = huffman.getRight()
+        if node is not None:
+            self._printHuffmanTree(node)
 
-    def getData(self):
-        return { 'data': self._data, 'cnt': self._cnt, 'code': self._code }
+        data = huffman.getData()
 
-def spliter(arr, size=8):
-    ret = []
-    for idx in range(0, len(arr), size):
-        ret.append(arr[idx:idx+size])
-    return ret
+        if self._isInt(data['data']):
+            print(data)
 
-# https://www.delftstack.com/ko/howto/python/how-to-convert-int-to-bytes-in-python-2-and-python-3/
-# int to byte
+    def printHuffmanTreeLMR(self):
+        self._printHuffmanTreeLMR(self._head)
 
-# https://www.daleseo.com/python-int-bases/
-# 
+    def _printHuffmanTreeLMR(self, huffman):
+        node = huffman.getLeft()
+        if node is not None:
+            self._printHuffmanTreeLMR(node)
+
+        node = huffman.getRight()
+        if node is not None:
+            self._printHuffmanTreeLMR(node)
+
+        data = huffman.getData()
+
+        print(data)

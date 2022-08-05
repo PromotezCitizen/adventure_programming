@@ -1,31 +1,28 @@
+from huffman_node import *
 from huffman import *
 
-class HuffmanEncoding():
+class HuffmanEncoding(Huffman):
     def __init__(self, filename):
-        self._huffman_dict = {}
-        self._huffman_len_histogram = {}
-        self._huffman_code_bin = {}
-        self._lines = None
-        self._head = None
-        self._encoded_str = ""
-        self._filename = filename
+        super().__init__(filename)
+        self._huffman_dict = {}             # { key:data, value:HuffmanNode }
+                                            # 허프만 트리 만들때만 사용
+        self._huffman_len_histogram = {}    # histogram에 저장용.
+                                            # 허프만 부호화된 문자의 길이에 관한 histogram
+        self._huffman_code_bin = {}         # { key:data, value:code }
+                                            # 허프만 부호화된 문자와 그에 해당하는 코드 저장
 
-    def run(self):
-        self._makeHuffmanDict(self._filename)
-        self._makeHuffmanTree()
+    def encode(self):
+        self._getBinLines() # 모든 문자열 가져오기
+
+        self._makeHuffmanDict() # 허프만 트리를 만들 기본 딕셔너리 생성. { key:data, value:HuffmanNode }
+        self._makeHuffmanTree() # 허프만 트리 정보가 담긴 딕셔너리를 이용해 허프만 트리 생성.
         self._setHuffmanCode(self._head)
+
         self._encodingStr()
 
-    def _makeHuffmanDict(self, filename):
-        self._lines = self._getBinLines(filename)
+    def _makeHuffmanDict(self):
         data_dict = self._getBinDict(self._lines)
         self._getHuffmanDict(data_dict)
-
-    def _getBinLines(self, filename):
-        with open(filename, 'rb') as f:
-            # lines = [ list(x) for x in f.readlines() ]
-            lines = list(f.read())
-        return lines
 
     def _getBinDict(self, lines):
         data_dict = {}
@@ -34,27 +31,38 @@ class HuffmanEncoding():
                 data_dict[data] += 1
             except:
                 data_dict[data] = 1
-        # for line in lines:
-        #     for data in line:
-        #         try:
-        #             data_dict[data] += 1
-        #         except:
-        #             data_dict[data] = 1
-
         return data_dict
 
     def _getHuffmanDict(self, data_dict):
         for key, val in data_dict.items():
-            self._huffman_dict[key] = Huffman(key, val)
+            self._huffman_dict[key] = HuffmanNode(key, val)
 
-    def _isInt(self, val):
-        try:
-            int(val)
-        except:
-            return False
-        return True
+    def _makeHuffmanTree(self): # 인코딩과 디코딩의 트리 만드는 구조가 다름
+        temp_data = ''
 
-    def _setHuffmanCode(self, huffman, code=""):
+        while len(self._huffman_dict) > 1:
+            # https://blockdmask.tistory.com/566 - dict sort
+            self._huffman_dict = dict(sorted(self._huffman_dict.items(), key=lambda x: x[1].getData()['cnt'], reverse=True))
+    
+            temp_data += '-' # 테스트 시 트리 구성을 보기 편하게
+
+            huffman_right = self._huffman_dict.popitem()[1]
+            data = huffman_right.getData()
+            temp_cnt = data['cnt']
+
+            huffman_left = self._huffman_dict.popitem()[1]
+            data = huffman_left.getData()
+            temp_cnt += data['cnt']
+            
+            huffman = HuffmanNode(temp_data, temp_cnt)
+            huffman.setRight(huffman_right)
+            huffman.setLeft(huffman_left)
+
+            self._huffman_dict[temp_data] = huffman
+
+        self._head = self._huffman_dict.popitem()[1]
+
+    def _setHuffmanCode(self, huffman, code=""): # 허프만 히스토그램 생성 및 [ key:data, value:code ] 쌍 생성
         node = huffman.getLeft()
         if node is not None:
             self._setHuffmanCode(node, code+'0')
@@ -72,93 +80,12 @@ class HuffmanEncoding():
                 self._huffman_len_histogram[len(code)] = 1
             finally:
                 self._huffman_code_bin[data['data']] = code
-                huffman.setData(data['data'], data['cnt'], code)
             # print(huffman.getData()) # only test
 
-    def _makeHuffmanTree(self):
-        temp_data = ''
-
-        while len(self._huffman_dict) > 1:
-            # https://blockdmask.tistory.com/566 - dict sort
-            self._huffman_dict = dict(sorted(self._huffman_dict.items(), key=lambda x: x[1].getData()['cnt'], reverse=True))
-    
-            temp_data += '-'
-
-            huffman_right = self._huffman_dict.popitem()[1]
-            data = huffman_right.getData()
-            temp_cnt = data['cnt']
-
-            huffman_left = self._huffman_dict.popitem()[1]
-            data = huffman_left.getData()
-            temp_cnt += data['cnt']
-            
-            huffman = Huffman(temp_data, temp_cnt)
-            huffman.setRight(huffman_right)
-            huffman.setLeft(huffman_left)
-
-            self._huffman_dict[temp_data] = huffman
-
-        self._head = self._huffman_dict.popitem()[1]
-
-    def printHuffmanTree(self):
-        self._printHuffmanTree(self._head)
-
-    def _printHuffmanTree(self, huffman):
-        node = huffman.getLeft()
-        if node is not None:
-            self._printHuffmanTree(node)
-
-        node = huffman.getRight()
-        if node is not None:
-            self._printHuffmanTree(node)
-
-        data = huffman.getData()
-
-        if self._isInt(data['data']):
-            print(data)
-
-    def printHuffmanTreeLMR(self):
-        self._printHuffmanTreeLMR(self._head)
-
-    def _printHuffmanTreeLMR(self, huffman):
-        node = huffman.getLeft()
-        if node is not None:
-            self._printHuffmanTreeLMR(node)
-
-        node = huffman.getRight()
-        if node is not None:
-            self._printHuffmanTreeLMR(node)
-
-        data = huffman.getData()
-
-        print(data)
-
-    def printHuffmanBin(self):
-        for key, val in self._huffman_code_bin.items():
-            print(key, val)
-
-    def printEncoded(self):
-        print(self._encoded_str)
-        for binary in spliter(self._encoded_str):
-            print(binary)
-
     def _encodingStr(self):
-        self._encoded_str = ""
         for data in self._lines:
+            print(data, type(data))
             self._encoded_str += self._huffman_code_bin[data]
-        # for list in self._lines:
-        #     for data in list:
-        #         self._encoded_str += self._huffman_code_bin[data]
-
-# 파일 구조
-#   len of huffman_code num
-#   huffman code key-value
-#       [
-#           data
-#           len(8byte씩 나눔)
-#           encoded_data
-#       ]
-#   encoded string
 
     def save(self, filename):
         self._saveEncodedTree(filename)
@@ -169,7 +96,6 @@ class HuffmanEncoding():
             f.write(bytes([len(self._huffman_code_bin)]))
             for key, val in self._huffman_code_bin.items():
                 codes = spliter(val)
-                # print(key, bytes([key]), codes, [ int(code, 2) for code in codes ])
                 f.write(bytes([key]))
                 f.write(bytes([len(val)]))
                 for code in codes:
@@ -195,3 +121,22 @@ class HuffmanEncoding():
         remainder = str_len % 256
 
         return [bytes([power]), bytes([share]), bytes([remainder])]
+
+    def printHuffmanBin(self):
+        for key, val in self._huffman_code_bin.items():
+            print(key, val)
+
+    def printEncoded(self):
+        print(self._encoded_str)
+        for binary in spliter(self._encoded_str):
+            print(binary)
+
+# 파일 구조
+#   len of huffman_code num
+#   huffman code key-value
+#       [
+#           data
+#           len(8byte씩 나눔)
+#           encoded_data
+#       ]
+#   encoded string
