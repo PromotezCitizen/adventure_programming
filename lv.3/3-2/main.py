@@ -13,12 +13,12 @@ encoder.save()
 
 print('='*30)
 
-# decoder = HuffmanDecoder()
-# decoder.decode()
-# # encoder.printHuffmanKeyVal()
-# # decoder.printHuffmanTree()
-# # decoder.printHuffmanTreeALL()
-# decoder.save()
+decoder = HuffmanDecoder()
+decoder.decode()
+# encoder.printHuffmanKeyVal()
+# decoder.printHuffmanTree()
+# decoder.printHuffmanTreeALL()
+decoder.save()
 
 # 임의의 텍스트 파일이 주어지면 허프만 코딩 방법을 이용하여 자료를 압축하며
 #   압축된 파일을 해제하는 프로그램을 작성한다.

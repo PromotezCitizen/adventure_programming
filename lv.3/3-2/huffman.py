@@ -19,6 +19,7 @@ class Huffman():
         self._encoded_str = ""      # 인코딩된 문자열
         self._header_data = {}      # { key:data, value:code }
                                     # 허프만 부호화된 문자와 그에 해당하는 코드 저장
+        self._origin_ext = []       # 원본 파일 확장자
 
     def __enter__(self): # with문 사용시 필요
         return self
@@ -31,7 +32,7 @@ class Huffman():
         filename = input("인코딩 할/된 파일 이름 입력 >> ")
         with open(filename, 'rb') as f:
             self._lines = list(f.read())
-        return filename
+        return filename # encoding에서 사용할 확장자 저장에 사용
 
     def _isInt(self, val):
         try:

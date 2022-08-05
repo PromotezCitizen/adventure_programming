@@ -4,12 +4,13 @@ from huffman import *
 class HuffmanDecoder(Huffman):
     def __init__(self):
         super().__init__()
+
         self._result = []           # 디코딩된 결과를 저장
 
     def decode(self):
         self.__init__()
 
-        self._getBinLines() # 모든 문자열 가져오기
+        _ = self._getBinLines() # 모든 문자열 가져오기
 
         self._getDecodeInfo() # 헤더 정보 가져오기
         self._makeHuffmanTree() # 헤더 정보를 통해 허프만 트리 구축
@@ -18,6 +19,15 @@ class HuffmanDecoder(Huffman):
                                 
         self._decodingStr() # 인코딩된 문자열 디코딩
 
+
+        # print(type(ord(data)), ord(data))
+    def _removeExtensions(self):
+        self._lines.pop(0)
+        self._lines.pop(0)
+
+        origin_ext_len = ord(self._lines.pop(0))
+        for _ in range(origin_ext_len):
+            self._origin_ext.append(chr(ord(self._lines.pop(0)))) # 확장자 복구
 
     def _getDecodeInfo(self):
         # [ data(8), code_len(8), code(n) ] 헤더는 왼쪽과 같은 방식으로 저장됨. 괄호 안의 숫자는 byte

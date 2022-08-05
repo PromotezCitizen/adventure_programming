@@ -8,7 +8,7 @@ class HuffmanEncoder(Huffman):
                                             # 허프만 트리 만들때만 사용
         self._huffman_len_histogram = {}    # histogram에 저장용.
                                             # 허프만 부호화된 문자의 길이에 관한 histogram
-        self._origin_ext = []
+        
 
     def encode(self):
         self.__init__()
