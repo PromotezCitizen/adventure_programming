@@ -1,25 +1,30 @@
 from encoder import HuffmanEncoder
 from decoder import HuffmanDecoder
 
+from codec import HuffmanCodec
+
 # C:\\Users\\Han\\Documents\\now.png
 # test.txt
 
-encoder = HuffmanEncoder() # encoder에서 허프만 트리는 필요없다. 
-encoder.encode()
-# encoder.printHuffmanKeyVal()
-# encoder.printHuffmanTree()
-# encoder.printHuffmanTreeALL()
-encoder.save()
+codec = HuffmanCodec().run()
 
-print('='*30)
+'''
+        # encoder = HuffmanEncoder() # encoder에서 허프만 트리는 필요없다. 
+        # encoder.encode()
+        # # encoder.printHuffmanKeyVal()
+        # # encoder.printHuffmanTree()
+        # # encoder.printHuffmanTreeALL()
+        # encoder.save()
 
-decoder = HuffmanDecoder()
-decoder.decode()
-# encoder.printHuffmanKeyVal()
-# decoder.printHuffmanTree()
-# decoder.printHuffmanTreeALL()
-decoder.save()
+        # print('='*30)
 
+        # decoder = HuffmanDecoder()
+        # decoder.decode()
+        # # encoder.printHuffmanKeyVal()
+        # # decoder.printHuffmanTree()
+        # # decoder.printHuffmanTreeALL()
+        # decoder.save()
+'''
 # 임의의 텍스트 파일이 주어지면 허프만 코딩 방법을 이용하여 자료를 압축하며
 #   압축된 파일을 해제하는 프로그램을 작성한다.
 # 다수의 텍스트 파일에서 실험을 하여 각각의 압축률과 평균적인 압축률을 계산해 본다.

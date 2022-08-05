@@ -7,10 +7,10 @@ class HuffmanDecoder(Huffman):
 
         self._result = []           # 디코딩된 결과를 저장
 
-    def decode(self):
+    def run(self, filename):
         self.__init__()
 
-        _ = self._getBinLines() # 모든 문자열 가져오기
+        self._getBinLines(filename) # 모든 문자열 가져오기
 
         self._removeExtensionsInfo()
         self._getDecodeInfo() # 헤더 정보 가져오기

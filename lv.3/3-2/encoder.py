@@ -8,12 +8,11 @@ class HuffmanEncoder(Huffman):
                                             # 허프만 트리 만들때만 사용
         self._huffman_len_histogram = {}    # histogram에 저장용.
                                             # 허프만 부호화된 문자의 길이에 관한 histogram
-        
 
-    def encode(self):
+    def run(self, filename):
         self.__init__()
 
-        filename = self._getBinLines() # 모든 문자열 가져오기
+        self._getBinLines(filename) # 모든 문자열 가져오기
 
         temp = filename.split('.')
         if len(temp) > 1:

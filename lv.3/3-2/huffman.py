@@ -27,11 +27,9 @@ class Huffman():
     def __exit__(self, exc_type, exc_val, exc_tb):
         print(exc_type, exc_val, exc_tb)
 
-    def _getBinLines(self):
-        filename = input("인코딩 할/된 파일 이름 입력 >> ")
+    def _getBinLines(self, filename):
         with open(filename, 'rb') as f:
             self._lines = list(f.read())
-        return filename # encoding에서 사용할 확장자 저장에 사용
 
     def _isInt(self, val):
         try:
