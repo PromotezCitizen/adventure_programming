@@ -1,17 +1,21 @@
-from encoding import HuffmanEncoding
-from decoding import HuffmanDecoding
+from encoder import HuffmanEncoder
+from decoder import HuffmanDecoder
 
 # C:\\Users\\Han\\Documents\\now.png
 # test.txt
-encoding = HuffmanEncoding('test.py') # encoding에서 허프만 트리는 필요없다. 
-encoding.encode()
-# encoding.printHuffmanTree()
-encoding.save('test.bin')
 
-print('')
+encoder = HuffmanEncoder() # encoder에서 허프만 트리는 필요없다. 
+encoder.encode()
+# encoder.printHuffmanKeyVal()
+# encoder.printHuffmanTree()
+# encoder.printHuffmanTreeALL()
+encoder.save()
 
-decoding = HuffmanDecoding('test.bin')
-decoding.decode()
-# decoding.printHuffmanTree()
-decoding.save('qwer.txt')
+print('='*30)
 
+decoder = HuffmanDecoder()
+decoder.decode()
+# encoder.printHuffmanKeyVal()
+# decoder.printHuffmanTree()
+# decoder.printHuffmanTreeALL()
+decoder.save()

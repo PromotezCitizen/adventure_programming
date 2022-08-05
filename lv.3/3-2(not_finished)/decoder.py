@@ -1,12 +1,14 @@
 from huffman_node import *
 from huffman import *
 
-class HuffmanDecoding(Huffman):
-    def __init__(self, filename):
-        super().__init__(filename)
+class HuffmanDecoder(Huffman):
+    def __init__(self):
+        super().__init__()
         self._result = []           # 디코딩된 결과를 저장
 
     def decode(self):
+        self.__init__()
+
         self._getBinLines() # 모든 문자열 가져오기
 
         self._getDecodeInfo() # 헤더 정보 가져오기
@@ -61,10 +63,10 @@ class HuffmanDecoding(Huffman):
         share = self._lines.pop(0)
         remainder = self._lines.pop(0)
         # =====================================
-        str_len = (0 if power == 0 else 256**power + 256*share + remainder)
-        self._encoded_str = ""
+        str_len = ((0 if power == 0 else 256**power) + 256*share + remainder)
         for _ in range(str_len//8):
-            self._encoded_str += bin(self._lines.pop(0))[2:].zfill(8)
+            data = bin(self._lines.pop(0))
+            self._encoded_str += data[2:].zfill(8)
         if str_len % 8 != 0:
             self._encoded_str += bin(self._lines.pop(0))[2:].zfill(str_len % 8)
 
@@ -73,14 +75,12 @@ class HuffmanDecoding(Huffman):
 
     def _decodingStr(self):
         temp = self._head_tree
-        result_str = ""
         max_len = len(self._encoded_str)
         for idx, data in enumerate(self._encoded_str):
             if data == '0':
                 if temp.getLeft() is None:
                     self._result.append(temp.getData()['data'])
                     if idx != max_len: temp = self._head_tree.getLeft()
-                    result_str = ""
                 else:
                     temp = temp.getLeft()
 
@@ -88,13 +88,12 @@ class HuffmanDecoding(Huffman):
                 if temp.getRight() is None:
                     self._result.append(temp.getData()['data'])
                     if idx != max_len: temp = self._head_tree.getRight()
-                    result_str = ""
                 else:
                     temp = temp.getRight()
-            result_str += data
         self._result.append(temp.getData()['data'])
 
-    def save(self, filename):
+    def save(self):
+        filename = input("저장할 파일 이름 입력 >> ")
         with open(filename, 'wb') as f:
             for data in self._result:
                 f.write(bytes([data]))

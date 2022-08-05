@@ -1,23 +1,10 @@
 from huffman_node import *
 from huffman import *
 
-
-
-# 파일 구조
-#   len of huffman_code num
-#   huffman code key-value
-#    eg)[
-#           data
-#           len(8byte씩 나눔)
-#           encoded_data
-#       ]
-#   power share remainder <- 인코딩된 문자열 길이 저장
-#   encoded string
-
-class HuffmanEncoding(Huffman):
-    def __init__(self, filename):
-        super().__init__(filename)
-        self._huffman_dict = {}             # { key:data, value:HuffmanNode }
+class HuffmanEncoder(Huffman):
+    def __init__(self):
+        super().__init__()
+        self._huffman_dict = None           # { key:data, value:HuffmanNode }
                                             # 허프만 트리 만들때만 사용
         self._huffman_len_histogram = {}    # histogram에 저장용.
                                             # 허프만 부호화된 문자의 길이에 관한 histogram
@@ -33,6 +20,7 @@ class HuffmanEncoding(Huffman):
         self._encodingStr()
 
     def _makeHuffmanDict(self):
+        self._huffman_dict = {}
         data_dict = self._getBinDict(self._lines)
         self._getHuffmanDict(data_dict)
 
@@ -96,10 +84,10 @@ class HuffmanEncoding(Huffman):
 
     def _encodingStr(self):
         for data in self._lines:
-            print(data, type(data))
             self._encoded_str += self._header_data[data]
 
-    def save(self, filename):
+    def save(self):
+        filename = input("저장할 파일 이름 입력 >> ")
         self._saveEncodedTree(filename)
         self._saveEncodedStr(filename)
 
@@ -114,12 +102,10 @@ class HuffmanEncoding(Huffman):
                     f.write(bytes([int(code, 2)]))
 
     def _saveEncodedStr(self, filename):
-        str_head = self._getEncodedStrLen(len(self._encoded_str))
         with open(filename, 'ab') as f:
-            for data in str_head:
+            for data in self._getEncodedStrLen(len(self._encoded_str)):
                 f.write(data)
-
-        with open(filename, 'ab') as f:
+            
             for bin in spliter(self._encoded_str):
                 f.write(bytes([int(bin, 2)]))
 
@@ -128,19 +114,8 @@ class HuffmanEncoding(Huffman):
         while 256**power < str_len:
             power += 1
         power -= 1
-        str_len -= 256**power
+        str_len -= 0 if power == 0 else 256**power
         share = str_len // 256
         remainder = str_len % 256
 
         return [bytes([power]), bytes([share]), bytes([remainder])]
-
-
-
-    def printHuffmanBin(self):
-        for key, val in self._header_data.items():
-            print(key, val)
-
-    def printEncoded(self):
-        print(self._encoded_str)
-        for binary in spliter(self._encoded_str):
-            print(binary)
