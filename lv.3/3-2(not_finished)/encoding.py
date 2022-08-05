@@ -1,6 +1,19 @@
 from huffman_node import *
 from huffman import *
 
+
+
+# 파일 구조
+#   len of huffman_code num
+#   huffman code key-value
+#    eg)[
+#           data
+#           len(8byte씩 나눔)
+#           encoded_data
+#       ]
+#   power share remainder <- 인코딩된 문자열 길이 저장
+#   encoded string
+
 class HuffmanEncoding(Huffman):
     def __init__(self, filename):
         super().__init__(filename)
@@ -8,8 +21,6 @@ class HuffmanEncoding(Huffman):
                                             # 허프만 트리 만들때만 사용
         self._huffman_len_histogram = {}    # histogram에 저장용.
                                             # 허프만 부호화된 문자의 길이에 관한 histogram
-        self._header_data = {}         # { key:data, value:code }
-                                            # 허프만 부호화된 문자와 그에 해당하는 코드 저장
 
     def encode(self):
         self._getBinLines() # 모든 문자열 가져오기
@@ -17,7 +28,7 @@ class HuffmanEncoding(Huffman):
         self._makeHuffmanDict() # 허프만 트리를 만들 기본 딕셔너리 생성. { key:data, value:HuffmanNode }
         self._makeHuffmanTree() # 허프만 트리 정보가 담긴 딕셔너리를 이용해 허프만 트리 생성.
 
-        self._setHuffmanCodeBin(self._head) # 
+        self._setHuffmanCodeBin(self._head) # 허프만 히스토그램 생성 및 [ key:data, value:code ] 쌍 생성
 
         self._encodingStr()
 
@@ -63,7 +74,7 @@ class HuffmanEncoding(Huffman):
 
         self._head = self._huffman_dict.popitem()[1]
 
-    def _setHuffmanCodeBin(self, huffman, code=""): # 허프만 히스토그램 생성 및 [ key:data, value:code ] 쌍 생성
+    def _setHuffmanCodeBin(self, huffman, code=""): 
         node = huffman.getLeft()
         if node is not None:
             self._setHuffmanCodeBin(node, code+'0')
@@ -123,6 +134,8 @@ class HuffmanEncoding(Huffman):
 
         return [bytes([power]), bytes([share]), bytes([remainder])]
 
+
+
     def printHuffmanBin(self):
         for key, val in self._header_data.items():
             print(key, val)
@@ -131,13 +144,3 @@ class HuffmanEncoding(Huffman):
         print(self._encoded_str)
         for binary in spliter(self._encoded_str):
             print(binary)
-
-# 파일 구조
-#   len of huffman_code num
-#   huffman code key-value
-#       [
-#           data
-#           len(8byte씩 나눔)
-#           encoded_data
-#       ]
-#   encoded string

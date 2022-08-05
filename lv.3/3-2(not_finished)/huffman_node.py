@@ -28,9 +28,6 @@ class HuffmanNode():
     def getLeft(self): # goLeft
         return self._left
 
-    def print(self):
-        print('data: {0}, cnt: {1}, code: {2}'.format(self._data, self._cnt, self._code))
-
     def setData(self, data, cnt, code):
         self._data = data
         self._cnt = cnt
@@ -38,6 +35,9 @@ class HuffmanNode():
 
     def getData(self):
         return { 'data': self._data, 'cnt': self._cnt, 'code': self._code }
+
+    def print(self):
+        print('data: {0}, cnt: {1}, code: {2}'.format(self._data, self._cnt, self._code))
 
 def spliter(arr, size=8):
     ret = []
