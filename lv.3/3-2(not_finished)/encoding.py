@@ -123,13 +123,14 @@ class HuffmanEncoding():
     def _printHuffmanTreeLMR(self, huffman):
         node = huffman.getLeft()
         if node is not None:
-            self._printHuffmanTree(node)
+            self._printHuffmanTreeLMR(node)
 
         node = huffman.getRight()
         if node is not None:
-            self._printHuffmanTree(node)
+            self._printHuffmanTreeLMR(node)
 
         data = huffman.getData()
+
         print(data)
 
     def printHuffmanBin(self):
