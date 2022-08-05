@@ -4,7 +4,8 @@ from huffman import *
 class HuffmanDecoding(Huffman):
     def __init__(self, filename):
         super().__init__(filename)
-        self._header_data = []
+        # self._header_data = []
+        self._header_data = {}
         self._result = []
 
     def decode(self):
@@ -35,15 +36,16 @@ class HuffmanDecoding(Huffman):
                 # print("bin:%8s, bin_len:%2d, code_len:%2d, start_idx:%2d, now_idx:%d, fill_pos:%2d" % 
                 #    (temp, len(temp), code_len, 8*idx, idx, filler))
                 code_len -= 8
-
-            self._head_data.append({'data': data, 'code_len': len(code), 'code': code})
+            
+            self._header_data[data] = code
+            # self._header_data.append({'data': data, 'code_len': len(code), 'code': code})
 
     def _makeHuffmanTree(self): # 인코딩과 디코딩의 트리 만드는 구조가 다름
         self._head = HuffmanNode()
 
-        for data in self._header_data: # header_data : { data, code }
+        for data, code in self._header_data.items():
             temp = self._head
-            for idx in data['code']:
+            for idx in code:
                 if idx == '0': # left
                     if temp.getLeft() is None:
                         temp.setLeft()
@@ -54,7 +56,21 @@ class HuffmanDecoding(Huffman):
                         temp.setRight()
                         temp.setData('-', -1, '')
                     temp = temp.getRight()
-            temp.setData(data['data'], data['code_len'], data['code'])
+            temp.setData(data, len(code), code)
+        # for data in self._header_data: # header_data : { data, code }
+            # temp = self._head
+            # for idx in data['code']:
+            #     if idx == '0': # left
+            #         if temp.getLeft() is None:
+            #             temp.setLeft()
+            #             temp.setData('-', -1, '')
+            #         temp = temp.getLeft()
+            #     else: # right
+            #         if temp.getRight() is None:
+            #             temp.setRight()
+            #             temp.setData('-', -1, '')
+            #         temp = temp.getRight()
+            # temp.setData(data['data'], data['code_len'], data['code'])
 
     def _getEncodedStr(self):
         # ========메인 문자열 길이 설정==========

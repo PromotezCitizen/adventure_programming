@@ -8,7 +8,7 @@ class HuffmanEncoding(Huffman):
                                             # 허프만 트리 만들때만 사용
         self._huffman_len_histogram = {}    # histogram에 저장용.
                                             # 허프만 부호화된 문자의 길이에 관한 histogram
-        self._huffman_code_bin = {}         # { key:data, value:code }
+        self._header_data = {}         # { key:data, value:code }
                                             # 허프만 부호화된 문자와 그에 해당하는 코드 저장
 
     def encode(self):
@@ -16,7 +16,8 @@ class HuffmanEncoding(Huffman):
 
         self._makeHuffmanDict() # 허프만 트리를 만들 기본 딕셔너리 생성. { key:data, value:HuffmanNode }
         self._makeHuffmanTree() # 허프만 트리 정보가 담긴 딕셔너리를 이용해 허프만 트리 생성.
-        self._setHuffmanCode(self._head)
+
+        self._setHuffmanCodeBin(self._head) # 
 
         self._encodingStr()
 
@@ -62,14 +63,14 @@ class HuffmanEncoding(Huffman):
 
         self._head = self._huffman_dict.popitem()[1]
 
-    def _setHuffmanCode(self, huffman, code=""): # 허프만 히스토그램 생성 및 [ key:data, value:code ] 쌍 생성
+    def _setHuffmanCodeBin(self, huffman, code=""): # 허프만 히스토그램 생성 및 [ key:data, value:code ] 쌍 생성
         node = huffman.getLeft()
         if node is not None:
-            self._setHuffmanCode(node, code+'0')
+            self._setHuffmanCodeBin(node, code+'0')
 
         node = huffman.getRight()
         if node is not None:
-            self._setHuffmanCode(node, code+'1')
+            self._setHuffmanCodeBin(node, code+'1')
 
         data = huffman.getData()
 
@@ -79,13 +80,13 @@ class HuffmanEncoding(Huffman):
             except:
                 self._huffman_len_histogram[len(code)] = 1
             finally:
-                self._huffman_code_bin[data['data']] = code
+                self._header_data[data['data']] = code
             # print(huffman.getData()) # only test
 
     def _encodingStr(self):
         for data in self._lines:
             print(data, type(data))
-            self._encoded_str += self._huffman_code_bin[data]
+            self._encoded_str += self._header_data[data]
 
     def save(self, filename):
         self._saveEncodedTree(filename)
@@ -93,8 +94,8 @@ class HuffmanEncoding(Huffman):
 
     def _saveEncodedTree(self, filename):
         with open(filename, 'wb') as f:
-            f.write(bytes([len(self._huffman_code_bin)]))
-            for key, val in self._huffman_code_bin.items():
+            f.write(bytes([len(self._header_data)]))
+            for key, val in self._header_data.items():
                 codes = spliter(val)
                 f.write(bytes([key]))
                 f.write(bytes([len(val)]))
@@ -123,7 +124,7 @@ class HuffmanEncoding(Huffman):
         return [bytes([power]), bytes([share]), bytes([remainder])]
 
     def printHuffmanBin(self):
-        for key, val in self._huffman_code_bin.items():
+        for key, val in self._header_data.items():
             print(key, val)
 
     def printEncoded(self):
