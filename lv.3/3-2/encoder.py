@@ -93,7 +93,8 @@ class HuffmanEncoder(Huffman):
             self._encoded_str += self._header_data[data]
 
     def save(self):
-        filename = input("저장할 파일 이름 입력 >> ")
+        filename = input("저장할 파일 이름 입력(확장자는 huf로 고정) >> ")
+        filename += '.huf'
         self._saveFileHeader(filename)
         self._saveEncodeTree(filename)
         self._saveEncodedStrLen(filename)
