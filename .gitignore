@@ -4,3 +4,13 @@
 *.npy
 
 **/files
+*.*
+
+!*.py
+!readme.txt
+!README.md
+!lv.2/2-2/rule.txt
+!*.pdf
+!*.c
+!*.uco
+!*.bmp
