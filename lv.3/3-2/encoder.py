@@ -95,7 +95,8 @@ class HuffmanEncoder(Huffman):
     def save(self):
         filename = input("저장할 파일 이름 입력 >> ")
         self._saveFileHeader(filename)
-        self._saveEncodedTree(filename)
+        self._saveEncodeTree(filename)
+        self._saveEncodedStrLen(filename)
         self._saveEncodedStr(filename)
 
     def _saveFileHeader(self, filename):
@@ -107,7 +108,7 @@ class HuffmanEncoder(Huffman):
             for ext in self._origin_ext: # 원래 파일의 확장자 이름
                 f.write(bytes([ord(ext)]))
 
-    def _saveEncodedTree(self, filename):
+    def _saveEncodeTree(self, filename):
         with open(filename, 'ab') as f:
             f.write(bytes([len(self._header_data) % 256])) # 0~255까지만 저장 가능하므로 256은 0으로 저장
             for key, val in self._header_data.items():
@@ -117,23 +118,29 @@ class HuffmanEncoder(Huffman):
                 for code in codes:
                     f.write(bytes([int(code, 2)]))
 
+    def _saveEncodedStrLen(self, filename):
+        str_len_arr = []
+        str_len = len(self._encoded_str)
+
+        max_power = 0
+        while 256**max_power < str_len:
+            max_power += 1
+        max_power -= 1
+
+        with open(filename, 'ab') as f:
+            f.write(bytes([max_power+1])) # mod 256이 있기 때문에 range는 실제 길이보다 1 짧다.
+            for i in range(max_power):
+                str_len_arr.append(str_len // 256**(max_power - i))
+                f.write(bytes([str_len // 256**(max_power - i)]))
+                str_len -= 256**(max_power-i) * str_len_arr[-1]
+            str_len_arr.append(str_len % 256)
+            f.write(bytes([str_len % 256]))
+        # print(str_len_arr) # 실제 코드에서는 테스트 용도로만 사용
+
     def _saveEncodedStr(self, filename):
         with open(filename, 'ab') as f:
-            for data in self._getEncodedStrLen(len(self._encoded_str)):
-                f.write(data) # 인코딩된 문자열의 길이 저장
+            # for data in self._getEncodedStrLen(len(self._encoded_str)):
+            #     f.write(data) # 인코딩된 문자열의 길이 저장
             
             for bin in spliter(self._encoded_str):
                 f.write(bytes([int(bin, 2)]))
-
-    def _getEncodedStrLen(self, str_len):
-        power = 0
-        print(str_len)
-        while 256**power < str_len:
-            power += 1
-        power -= 1
-        str_len -= 0 if power == 0 else 256**power
-        share = str_len // 256
-        remainder = str_len % 256
-        print(power, share, remainder)
-
-        return [bytes([power]), bytes([share]), bytes([remainder])]

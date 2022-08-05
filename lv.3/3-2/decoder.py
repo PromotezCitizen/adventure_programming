@@ -41,7 +41,7 @@ class HuffmanDecoder(Huffman):
 
         huffman_bin_len = self._lines.pop(0)
         huffman_bin_len = huffman_bin_len if huffman_bin_len != 0 else (256 if len(self._lines) > 0 else huffman_bin_len)
-        print(huffman_bin_len)
+
         for _ in range(huffman_bin_len):
             data = self._lines.pop(0)
             code_len = self._lines.pop(0)
@@ -78,12 +78,19 @@ class HuffmanDecoder(Huffman):
             temp.setData(data, len(code), code)
 
     def _getEncodedStr(self):
-        # ========메인 문자열 길이 설정==========
-        power = self._lines.pop(0)
-        share = self._lines.pop(0)
-        remainder = self._lines.pop(0)
-        # =====================================
-        str_len = ((0 if power == 0 else 256**power) + 256*share + remainder)
+        # # ========메인 문자열 길이 설정==========
+        # str_len_arr = []
+        # origin = 1249786
+        # str_arr_len = self._lines.pop(0)
+        # for _ in range(str_arr_len):
+        #     str_len_arr.append(self._lines.pop(0))
+
+        # str_len = 0
+        # for i, data in enumerate(str_len_arr):
+        #     str_len += 256**(str_arr_len-1 - i) * data
+        # print(str_len == origin, str_len, origin) # 실제 코드에서는 테스트 용도로만 사용
+        # # =====================================
+        str_len = self._getEncodedStrLen()
         for _ in range(str_len//8):
             data = bin(self._lines.pop(0))
             self._encoded_str += data[2:].zfill(8)
@@ -92,6 +99,22 @@ class HuffmanDecoder(Huffman):
 
         # zfill(n) - 반환될 문장의 길이가 n이 될때까지 좌측에 0을 추가
         # 인코딩된 문장은 byte로 저장되어있어 0b00110110으로 저장된 경우 110110만 가져온다. 이를 해결
+
+    def _getEncodedStrLen(self):
+        # ========메인 문자열 길이 설정==========
+        str_len_arr = []
+        # origin = 1249786
+        str_arr_len = self._lines.pop(0)
+        for _ in range(str_arr_len):
+            str_len_arr.append(self._lines.pop(0))
+
+        str_len = 0
+        for i, data in enumerate(str_len_arr):
+            str_len += 256**(str_arr_len-1 - i) * data
+
+        return str_len
+        # print(str_len == origin, str_len, origin) # 실제 코드에서는 테스트 용도로만 사용
+        # =====================================
 
     def _decodingStr(self):
         temp = self._head_tree
