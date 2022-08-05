@@ -109,7 +109,7 @@ class HuffmanEncoder(Huffman):
 
     def _saveEncodedTree(self, filename):
         with open(filename, 'ab') as f:
-            f.write(bytes([len(self._header_data)]))
+            f.write(bytes([len(self._header_data) % 256])) # 0~255까지만 저장 가능하므로 256은 0으로 저장
             for key, val in self._header_data.items():
                 codes = spliter(val)
                 f.write(bytes([key]))
@@ -127,11 +127,13 @@ class HuffmanEncoder(Huffman):
 
     def _getEncodedStrLen(self, str_len):
         power = 0
+        print(str_len)
         while 256**power < str_len:
             power += 1
         power -= 1
         str_len -= 0 if power == 0 else 256**power
         share = str_len // 256
         remainder = str_len % 256
+        print(power, share, remainder)
 
         return [bytes([power]), bytes([share]), bytes([remainder])]

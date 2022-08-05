@@ -35,12 +35,13 @@ class HuffmanDecoder(Huffman):
 
     def _getDecodeInfo(self):
         # [ data(8), code_len(8), code(n) ] 헤더는 왼쪽과 같은 방식으로 저장됨. 괄호 안의 숫자는 byte
-        with open('middle.bin', 'wb') as f:
-            for data in self._lines:
-                f.write(bytes([data]))
-
+        # with open('middle.bin', 'rb') as f:
+        #     for data in self._lines:
+        #         f.write(bytes([data]))
 
         huffman_bin_len = self._lines.pop(0)
+        huffman_bin_len = huffman_bin_len if huffman_bin_len != 0 else (256 if len(self._lines) > 0 else huffman_bin_len)
+        print(huffman_bin_len)
         for _ in range(huffman_bin_len):
             data = self._lines.pop(0)
             code_len = self._lines.pop(0)

@@ -77,3 +77,26 @@ str2 = "000110100000000011100111100111111110000010110001011110011010010100101011
 temp = []
 print(len(temp))
 print(''.join(temp), len(''.join(temp)))
+
+
+str_len = 1044728937592
+origin = str_len
+
+str_len_arr = []
+
+max_power = 0
+while 256**max_power < str_len:
+    max_power += 1
+max_power -= 1
+print(max_power)
+
+for i in range(max_power):
+    str_len_arr.append(str_len // 256**(max_power - i))
+    str_len -= 256**(max_power-i) * str_len_arr[-1]
+    print(str_len_arr, str_len_arr[-1])
+str_len_arr.append(str_len % 256)
+
+adder = 0
+for i, data in enumerate(str_len_arr):
+    adder += 256**(len(str_len_arr)-1 - i) * data
+print(adder == origin, adder, origin)

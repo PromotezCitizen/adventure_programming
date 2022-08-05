@@ -1,16 +1,16 @@
 # 파일 구조
-#   magic number(2byte)
-#   len of extension(1byte)
-#   extensions(<len of extension>bytes)
-#   len of huffman_code num
-#   huffman code key-value
+#   magic number (2byte)
+#   len of extension (1byte)
+#   extension s(<len of extension>byte)
+#   len of huffman_code num (1byte), if 0 : real 0 or 0xFF
+#   huffman code key-value (min:len_of_huffman_code_num*3)
 #    eg)[
 #           data
 #           len(8byte씩 나눔)
-#           encoded_data
+#           encoded_data (<len>byte)
 #       ]
-#   power share remainder <- 인코딩된 문자열 길이 저장
-#   encoded str
+#   power (1byte) share (1byte) remainder (1byte) <- 인코딩된 문자열 길이 저장, 3byte
+#   encoded str (ceil((256**power + share*256 + remainder) / 8) byte)
 
 class Huffman():
     def __init__(self):
