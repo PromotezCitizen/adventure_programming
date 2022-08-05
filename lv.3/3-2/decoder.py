@@ -111,7 +111,7 @@ class HuffmanDecoder(Huffman):
         self._result.append(temp.getData()['data'])
 
     def save(self):
-        filename = input("저장할 파일 이름 입력 >> ")
+        filename = input("저장할 파일 이름 입력(확장자는 자동생성) >> ")
         with open(filename + "".join(self._origin_ext), 'wb') as f:
             for data in self._result:
                 f.write(bytes([data]))

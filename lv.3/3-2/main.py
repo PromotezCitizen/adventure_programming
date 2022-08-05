@@ -9,6 +9,7 @@ from codec import HuffmanCodec
 codec = HuffmanCodec().run()
 
 '''
+# 코덱 만들기 전 사용했던 코드
         # encoder = HuffmanEncoder() # encoder에서 허프만 트리는 필요없다. 
         # encoder.encode()
         # # encoder.printHuffmanKeyVal()
@@ -46,5 +47,5 @@ codec = HuffmanCodec().run()
 
 
 # 추가 기능
-# 1) 자동 인코딩/디코딩
+# 1) 자동 인코딩/디코딩 - 완료
 # 2) 복호화 시 자동으로 확장자 명 추가 - 완료

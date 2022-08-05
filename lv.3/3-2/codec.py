@@ -14,10 +14,12 @@ class HuffmanCodec():
         with open(filename, 'rb') as f:
             temp = f.read(2)
 
-        if sum(temp) < 0xFF+0xFF:
-            self._codec = self._encoder
-        else:
-            self._codec = self._decoder
+        self._codec = self._encoder if sum(temp) < 0xFF+0xFF else self._decoder
+
+        # if sum(temp) < 0xFF+0xFF:
+        #     self._codec = self._encoder
+        # else:
+        #     self._codec = self._decoder
         
         self._codec.run(filename)
         self._codec.save()
