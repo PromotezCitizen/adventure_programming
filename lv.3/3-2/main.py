@@ -3,10 +3,10 @@ from codec import HuffmanCodec
 # C:\\Users\\Han\\Documents\\now.png
 # test.txt
 
+# cli를 사용하는 버전
 codec = HuffmanCodec()
 
 codec.run()
-codec.save()
 
 '''
 # 코덱 만들기 전 사용했던 코드
