@@ -1,6 +1,5 @@
 from huffman_node import *
 from huffman import *
-import time
 
 # 디코딩에서는 멀티프로세싱을 사용할 수 없음
 
@@ -91,18 +90,6 @@ class HuffmanDecoder(Huffman):
             temp.setData(data, len(code), code)
 
     def _getEncodedStr(self):
-        # # ========메인 문자열 길이 설정==========
-        # str_len_arr = []
-        # origin = 1249786
-        # str_arr_len = self._lines.pop(0)
-        # for _ in range(str_arr_len):
-        #     str_len_arr.append(self._lines.pop(0))
-
-        # str_len = 0
-        # for i, data in enumerate(str_len_arr):
-        #     str_len += 256**(str_arr_len-1 - i) * data
-        # print(str_len == origin, str_len, origin) # 실제 코드에서는 테스트 용도로만 사용
-        # # =====================================
         str_len = self._getEncodedStrLen()
         for _ in range(str_len//8):
             data = bin(self._lines.pop(0))
@@ -116,7 +103,6 @@ class HuffmanDecoder(Huffman):
     def _getEncodedStrLen(self):
         # ========메인 문자열 길이 설정==========
         str_len_arr = []
-        # origin = 1249786
         str_arr_len = self._lines.pop(0)
         for _ in range(str_arr_len):
             str_len_arr.append(self._lines.pop(0))
@@ -126,10 +112,11 @@ class HuffmanDecoder(Huffman):
             str_len += 256**(str_arr_len-1 - i) * data
 
         return str_len
-        # print(str_len == origin, str_len, origin) # 실제 코드에서는 테스트 용도로만 사용
         # =====================================
 
-    def _decodingStr(self): # 인코딩된 파일 구조로 인한 프로세스 분리 불가
+    def _decodingStr(self):
+        # 인코딩된 파일 구조로 인한 프로세스 분리 불가
+        # 가능했으면 이미 빠른 속도로 복호화가 가능했을 것
         temp = self._head_tree
         max_len = len(self._encoded_str)
         for idx, data in enumerate(self._encoded_str):
@@ -154,3 +141,5 @@ class HuffmanDecoder(Huffman):
                 f.write(bytes([data]))
                 
         self._printRunTime(start, 'save')
+
+        return filename + "".join(self._origin_ext)

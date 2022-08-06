@@ -1,4 +1,3 @@
-
 # # ========== int를 바이트 타입으로 저장 ===============
 # # data = 200
 # # with open('test.bin', 'wb') as f:
@@ -185,5 +184,5 @@ def main():
             proc.join()
         print(return_dict.items())
 
-main()
+# main()
 # =========================================================

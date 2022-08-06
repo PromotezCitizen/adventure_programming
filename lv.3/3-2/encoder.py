@@ -145,6 +145,8 @@ class HuffmanEncoder(Huffman):
         self._saveEncodedStrLen(filename)
         self._saveEncodedStr(filename)
         self._printRunTime(start, 'save')
+        
+        return filename
 
     def _saveFileHeader(self, filename):
         with open(filename, 'wb') as f:
