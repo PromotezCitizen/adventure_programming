@@ -13,26 +13,26 @@ class HuffmanDecoder(Huffman):
     def run(self, filename):
         self.__init__()
 
-        start = time.perf_counter()
+        start = self._getRunStartTime()
         self._getBinLines(filename) # 모든 문자열 가져오기
-        print('readfile: ', time.perf_counter() - start)
+        self._printRunTime(start, 'readfile')
 
-        start = time.perf_counter()
+        start = self._getRunStartTime()
         self._removeExtensionsInfo()
         self._getDecodeInfo() # 헤더 정보 가져오기
-        print('header_data: ', time.perf_counter() - start)
+        self._printRunTime(start, 'get_header_data')
 
-        start = time.perf_counter()
+        start = self._getRunStartTime()
         self._makeHuffmanTree() # 헤더 정보를 통해 허프만 트리 구축
-        print('make_huffmantree: ', time.perf_counter() - start)
+        self._printRunTime(start, 'make_huffmantree')
 
-        start = time.perf_counter()
+        start = self._getRunStartTime()
         self._getEncodedStr()   # 인코딩된 문자열 가져오기.
-        print('get_encoded_str: ', time.perf_counter() - start)
+        self._printRunTime(start, 'get_encoded_str')
         
-        start = time.perf_counter()
+        start = self._getRunStartTime()
         self._decodingStr() # 인코딩된 문자열 디코딩
-        print('decoding: ', time.perf_counter() - start)
+        self._printRunTime(start, 'decoding')
 
         # print(type(ord(data)), ord(data))
     def _removeExtensionsInfo(self):
@@ -147,10 +147,10 @@ class HuffmanDecoder(Huffman):
                     temp = temp.getRight()
         self._result.append(temp.getData()['data'])
 
-    def save(self):
-        filename = input("저장할 파일 이름 입력(확장자는 자동생성) >> ")
-        start = time.perf_counter()
+    def save(self, filename):
+        start = self._getRunStartTime()
         with open(filename + "".join(self._origin_ext), 'wb') as f:
             for data in self._result:
                 f.write(bytes([data]))
-        print('write: ', time.perf_counter() - start)
+                
+        self._printRunTime(start, 'save')

@@ -1,12 +1,9 @@
 from huffman_node import *
 from huffman import *
 import multiprocessing as mp
-from multipledispatch import dispatch
-
-import time
+# from multipledispatch import dispatch
 
 # process 수는 4로 고정
-
 class HuffmanEncoder(Huffman):
     def __init__(self):
         super().__init__()
@@ -16,34 +13,31 @@ class HuffmanEncoder(Huffman):
                                             # 허프만 부호화된 문자의 길이에 관한 histogram
 
     def run(self, filename):
-        print('start encoding')
         self.__init__()
 
-        start = time.perf_counter()
+        start = self._getRunStartTime()
         self._getBinLines(filename) # 모든 문자열 가져오기
-        print('readfile: ', time.perf_counter() - start)
+        self._printRunTime(start, 'readfile')
 
         temp = filename.split('.')
         if len(temp) > 1:
             self._origin_ext = temp[-1]
 
-        start = time.perf_counter()
+        start = self._getRunStartTime()
         self._makeHuffmanDict() # 허프만 트리를 만들 기본 딕셔너리 생성. { key:data, value:HuffmanNode }
-        print('huffman_dict: ', time.perf_counter() - start)
+        self._printRunTime(start, 'make_huffman_dict')
 
-        start = time.perf_counter()
+        start = self._getRunStartTime()
         self._makeHuffmanTree() # 허프만 트리 정보가 담긴 딕셔너리를 이용해 허프만 트리 생성.
-        print('huffman_tree: ', time.perf_counter() - start)
+        self._printRunTime(start, 'make_huffman_tree')
 
-        start = time.perf_counter()
+        start = self._getRunStartTime()
         self._setHuffmanCodeBin(self._head) # 허프만 히스토그램 생성 및 [ key:data, value:code ] 쌍 생성
-        print('huffman_code: ', time.perf_counter() - start)
+        self._printRunTime(start, 'make_huffman_code')
 
-        start = time.perf_counter()
+        start = self._getRunStartTime()
         self._encodingStr()
-        print('encoding: ', time.perf_counter() - start)
-        
-        print('end encoding')
+        self._printRunTime(start, 'encoding')
 
     def _makeHuffmanDict(self):
         self._huffman_dict = {}
@@ -121,16 +115,18 @@ class HuffmanEncoder(Huffman):
             # 기본은 프로세스 4개
             # arg: 테스트 후 self._lines로 변경 예정
         for i in range(process_num):
-            p = mp.Process(target=self._processWorker, args=(i, return_dict, data[i]))
-            jobs.append(p)
-            p.start()
+            jobs.append(mp.Process(
+                target=self._encodeProcessWorker,
+                args=(i, return_dict, data[i])
+            ))
+            jobs[-1].start()
 
         for proc in jobs:
             proc.join()
         
         self._encoded_str = ''.join(return_dict.values())
 
-    def _processWorker(self, procnum, return_dict, calc_range):
+    def _encodeProcessWorker(self, procnum, return_dict, calc_range):
         temp = ""
         for data in calc_range:
             temp += self._header_data[data]
@@ -142,16 +138,13 @@ class HuffmanEncoder(Huffman):
     #     for data in self._lines:
     #         self._encoded_str += self._header_data[data]
 
-    def save(self):
-        filename = input("저장할 파일 이름 입력(확장자는 huf로 고정) >> ")
-        filename += '.huf'
-
-        start = time.perf_counter()
+    def save(self, filename):
+        start = self._getRunStartTime()
         self._saveFileHeader(filename)
         self._saveEncodeTree(filename)
         self._saveEncodedStrLen(filename)
         self._saveEncodedStr(filename)
-        print('save: ', time.perf_counter() - start)
+        self._printRunTime(start, 'save')
 
     def _saveFileHeader(self, filename):
         with open(filename, 'wb') as f:

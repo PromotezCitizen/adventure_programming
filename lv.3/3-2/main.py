@@ -1,12 +1,12 @@
-from encoder import HuffmanEncoder
-from decoder import HuffmanDecoder
-
 from codec import HuffmanCodec
 
 # C:\\Users\\Han\\Documents\\now.png
 # test.txt
 
-codec = HuffmanCodec().run()
+codec = HuffmanCodec()
+
+codec.run()
+codec.save()
 
 '''
 # 코덱 만들기 전 사용했던 코드
@@ -42,8 +42,9 @@ codec = HuffmanCodec().run()
 
 # 확장 기능
 # ① GUI 구현 - 해볼까?
-# ② ASCII 문자 이외의 문자(한글, 유니코드 등)에 대해서도 동작하도록 한다. - 동작은 함. binary로 읽어서 binary로 쓰기 때문.
-#   본 기능의 구현은 쉽지 않을 것으로 판단됨 - 문제 분석 시 구현 가능성에 대해 검토
+# ② ASCII 문자 이외의 문자(한글, 유니코드 등)에 대해서도 동작하도록 한다.
+#   본 기능의 구현은 쉽지 않을 것으로 판단됨. 문제 분석 시 구현 가능성에 대해 검토
+#       - 동작은 함. binary로 읽어서 binary로 쓰기 때문.
 
 
 # 추가 기능

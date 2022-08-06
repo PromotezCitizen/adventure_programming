@@ -15,10 +15,18 @@ class HuffmanCodec():
         self._decoder = HuffmanDecoder()
         self._codec = None
     
-    def run(self):
+    def test(self):
         # print(mp.current_process().name)
         if mp.current_process().name == "MainProcess":
+            # 이게 없으면 save는 프로세스 수 만큼 실행됨. run은 상관없음
+            self.run()
+            self.save()
+        
+
+    def run(self):
+        if mp.current_process().name == "MainProcess":
             mp.freeze_support()
+
             while True:
                 filename = input("파일 이름 입력(확장자 없으면 huf파일) >> ")
                 filename = filename+".huf" if len(filename.split('.')) == 1 else filename
@@ -33,14 +41,18 @@ class HuffmanCodec():
                 except OSError as e:
                     print('%s - 없는 파일입니다. 다시 입력해주세요.' % e.filename)
 
-            print(filename)
-
             self._codec = self._encoder if sum(temp) < 0xFF+0xFF else self._decoder
             
+            msg = 'encoding' if self._codec is self._encoder else 'decoding'
+            print('start {0}}'.format(msg))
             self._codec.run(filename)
+            print('end {0}'.format(msg))
 
-            
-            print('start saving')
-            self._codec.save()
-            print('end saving')
+    def save(self):
+        msg = "huf로 고정" if self._codec is self._encoder else "자동생성"
+        filename = input("저장할 파일 이름 입력(확장자는 %s) >> " % msg)
+        filename += '.huf' if self._codec is self._encoder else ""
         
+        print('start saving')
+        self._codec.save(filename)
+        print('end saving')
