@@ -1,6 +1,5 @@
-from inspect import getfile
-from tkinter import *
 from codec import HuffmanCodec
+from tkinter import *
 from tkinter import filedialog
 from tkinter import simpledialog
 import multiprocessing as mp
@@ -28,24 +27,23 @@ class GUI():
         None
 
     def run(self):
-        if mp.current_process().name == "MainProcess":
-            self._window.title('Huffman 부호화')
-            self._window.geometry("{0}x{1}+1000+300".format(self._window_width, self._window_height))
-            self._window.resizable(False, False)
-            self._makeMainFrame()
+        self._window.title('Huffman 부호화')
+        self._window.geometry("{0}x{1}+1000+300".format(self._window_width, self._window_height))
+        self._window.resizable(False, False)
+        self._makeMainFrame()
 
-            main_frame = Frame(
-                self._window,
-                relief='solid',
-                bd=5,
-                width=self._window_width-self._margin*2,
-                height=self._window_height-self._margin*2
-            )
-            main_frame.pack()
+        main_frame = Frame(
+            self._window,
+            relief='solid',
+            bd=5,
+            width=self._window_width-self._margin*2,
+            height=self._window_height-self._margin*2
+        )
+        main_frame.pack()
 
-            self._configureMainFrame(main_frame)
+        self._configureMainFrame(main_frame)
 
-            self._window.mainloop()
+        self._window.mainloop()
 
     def _makeMainFrame(self):
         top_frame = Frame(
@@ -115,15 +113,16 @@ class GUI():
 
         self._before_filename.configure(text="origin_file_name")
         self._after_filename.configure(text="converted_file_name")
-        self._status.configure(text="asdf")
+        self._status.configure(text="None")
 
     def _loadFile(self):
         self._filename = filedialog.askopenfilename(initialdir="", title="Select file",
                                                 filetypes=(("all files", "*.*"),))
                                 # filetypes는 단 하나만 쓰더라도 ,(콤마) 필수
         print(self._filename)
-        if self._filename is not '':
+        if self._filename != '':
             self._before_filename.configure(text=self._filename)
+            self._after_filename.configure(text="None")
             self._status.configure(text=("Encoded File" if self._codec.isEncoded(self._filename) else "Not Encoded File"))
             self._convert_btn.configure(state=NORMAL)
             self._save_btn.configure(state=DISABLED)
@@ -138,11 +137,12 @@ class GUI():
                         parent=self._window)
 
         print(self._filename)
-        if self._filename is not '' and self._filename is not None:
+        if self._filename != '' and self._filename != None:
             self._filename += '.huf' if self._codec is self._codec.isEncoder() else ""
             self._filename = self._codec.save(self._filename)
             self._after_filename.configure(text=self._filename+"(save end)")
             self._save_btn.configure(state=DISABLED)
+            # self._convert_btn.configure(state=DISABLED)
 
 # codec = HuffmanCodec()
 # window = Tk()
@@ -269,4 +269,17 @@ class GUI():
 
 # window.mainloop()
 
-GUI().run()
+import os
+
+print(mp.current_process().name, __name__)
+
+if __name__ == "__main__":
+    mp.freeze_support()
+    # https://github.com/pyinstaller/pyinstaller/issues/3957#issuecomment-674579877
+    # Pyinstaller multiprocessing name of process is always "MainProcess" 해결
+    if 'main_started' not in os.environ:
+        os.environ['main_started'] = ''
+        GUI().run()
+        os.system('pause')
+
+# pyinstaller --onefile gui.py
