@@ -119,6 +119,7 @@ class GUI():
         self._filename = filedialog.askopenfilename(initialdir="", title="Select file",
                                                 filetypes=(("all files", "*.*"),))
                                 # filetypes는 단 하나만 쓰더라도 ,(콤마) 필수
+        print(self._filename)
         if self._filename != '':
             self._before_filename.configure(text=self._filename)
             self._after_filename.configure(text="None")
@@ -135,6 +136,7 @@ class GUI():
         self._filename = simpledialog.askstring("Input", "저장할 파일의 이름을 적어주세요.\n확장자는 자동으로 생성됩니다.",
                         parent=self._window)
 
+        print(self._filename)
         if self._filename != '' and self._filename != None:
             self._filename += '.huf' if self._codec is self._codec.isEncoder() else ""
             self._filename = self._codec.save(self._filename)
