@@ -35,4 +35,7 @@ class HuffmanCodec():
         
         self._codec.run(filename)
         self._codec.save()
+
+
+        print(__name__)
         

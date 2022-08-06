@@ -1,5 +1,8 @@
 from huffman_node import *
 from huffman import *
+import time
+
+# 디코딩에서는 멀티프로세싱을 사용할 수 없음
 
 class HuffmanDecoder(Huffman):
     def __init__(self):
@@ -10,16 +13,26 @@ class HuffmanDecoder(Huffman):
     def run(self, filename):
         self.__init__()
 
+        start = time.perf_counter()
         self._getBinLines(filename) # 모든 문자열 가져오기
+        print('readfile: ', time.perf_counter() - start)
 
+        start = time.perf_counter()
         self._removeExtensionsInfo()
         self._getDecodeInfo() # 헤더 정보 가져오기
+        print('header_data: ', time.perf_counter() - start)
+
+        start = time.perf_counter()
         self._makeHuffmanTree() # 헤더 정보를 통해 허프만 트리 구축
+        print('make_huffmantree: ', time.perf_counter() - start)
 
+        start = time.perf_counter()
         self._getEncodedStr()   # 인코딩된 문자열 가져오기.
-                                
+        print('get_encoded_str: ', time.perf_counter() - start)
+        
+        start = time.perf_counter()
         self._decodingStr() # 인코딩된 문자열 디코딩
-
+        print('decoding: ', time.perf_counter() - start)
 
         # print(type(ord(data)), ord(data))
     def _removeExtensionsInfo(self):
@@ -116,7 +129,7 @@ class HuffmanDecoder(Huffman):
         # print(str_len == origin, str_len, origin) # 실제 코드에서는 테스트 용도로만 사용
         # =====================================
 
-    def _decodingStr(self):
+    def _decodingStr(self): # 인코딩된 파일 구조로 인한 프로세스 분리 불가
         temp = self._head_tree
         max_len = len(self._encoded_str)
         for idx, data in enumerate(self._encoded_str):
@@ -136,6 +149,8 @@ class HuffmanDecoder(Huffman):
 
     def save(self):
         filename = input("저장할 파일 이름 입력(확장자는 자동생성) >> ")
+        start = time.perf_counter()
         with open(filename + "".join(self._origin_ext), 'wb') as f:
             for data in self._result:
                 f.write(bytes([data]))
+        print('write: ', time.perf_counter() - start)

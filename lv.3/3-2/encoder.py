@@ -1,5 +1,39 @@
 from huffman_node import *
 from huffman import *
+import multiprocessing as mp
+
+import time
+
+# process_num은 4~6으로 고정
+
+def worker(procnum, return_dict):
+    """worker function"""
+    print(str(procnum) + " represent!")
+    return_dict[procnum] = procnum
+
+def main():
+    print('proc: ', mp.current_process().name)
+    if mp.current_process().name == "MainProcess":
+        process_num = 4
+        mp.freeze_support()
+        manager = mp.Manager()
+        return_dict = manager.dict()
+        jobs = []
+        for i in range(process_num):
+            print
+            p = mp.Process(target=worker, args=(i, return_dict))
+            jobs.append(p)
+            p.start()
+
+        for proc in jobs:
+            proc.join()
+        print(return_dict.items())
+
+# 현재 encodingStr
+def encodingStr(self):
+    for data in self._lines:
+        self._encoded_str += self._header_data[data]
+
 
 class HuffmanEncoder(Huffman):
     def __init__(self):
@@ -12,18 +46,29 @@ class HuffmanEncoder(Huffman):
     def run(self, filename):
         self.__init__()
 
+        start = time.perf_counter()
         self._getBinLines(filename) # 모든 문자열 가져오기
+        print('readfile: ', time.perf_counter() - start)
 
         temp = filename.split('.')
         if len(temp) > 1:
             self._origin_ext = temp[-1]
 
+        start = time.perf_counter()
         self._makeHuffmanDict() # 허프만 트리를 만들 기본 딕셔너리 생성. { key:data, value:HuffmanNode }
+        print('huffman_dict: ', time.perf_counter() - start)
+
+        start = time.perf_counter()
         self._makeHuffmanTree() # 허프만 트리 정보가 담긴 딕셔너리를 이용해 허프만 트리 생성.
+        print('huffman_tree: ', time.perf_counter() - start)
 
+        start = time.perf_counter()
         self._setHuffmanCodeBin(self._head) # 허프만 히스토그램 생성 및 [ key:data, value:code ] 쌍 생성
+        print('huffman_code: ', time.perf_counter() - start)
 
+        start = time.perf_counter()
         self._encodingStr()
+        print('encoding: ', time.perf_counter() - start)
 
     def _makeHuffmanDict(self):
         self._huffman_dict = {}
@@ -88,6 +133,31 @@ class HuffmanEncoder(Huffman):
                 self._header_data[data['data']] = code
             # print(huffman.getData()) # only test
 
+    def _processWorker(self, procnum, return_dict, calc_range):
+        # print(str(procnum) + " represent!")
+        temp = []
+        for data in calc_range:
+            temp.append(data)
+        return_dict[procnum] = temp
+
+    def processRun(self, arg):
+        # print('proc: ', multiprocessing.current_process().name)
+        if mp.current_process().name == "MainProcess":
+            process_num = 4
+            mp.freeze_support()
+            manager = mp.Manager()
+            return_dict = manager.dict()
+            jobs = []
+            data = spliterByArrLen(arg, process_num) # 기본은 프로세스 4개
+            for i in range(process_num):
+                p = mp.Process(target=self._processWorker, args=(i, return_dict, data[i]))
+                jobs.append(p)
+                p.start()
+
+            for proc in jobs:
+                proc.join()
+            print(return_dict.items())
+
     def _encodingStr(self):
         for data in self._lines:
             self._encoded_str += self._header_data[data]
@@ -95,10 +165,13 @@ class HuffmanEncoder(Huffman):
     def save(self):
         filename = input("저장할 파일 이름 입력(확장자는 huf로 고정) >> ")
         filename += '.huf'
+
+        start = time.perf_counter()
         self._saveFileHeader(filename)
         self._saveEncodeTree(filename)
         self._saveEncodedStrLen(filename)
         self._saveEncodedStr(filename)
+        print('save: ', time.perf_counter() - start)
 
     def _saveFileHeader(self, filename):
         with open(filename, 'wb') as f:
@@ -113,14 +186,15 @@ class HuffmanEncoder(Huffman):
         with open(filename, 'ab') as f:
             f.write(bytes([len(self._header_data) % 256])) # 0~255까지만 저장 가능하므로 256은 0으로 저장
             for key, val in self._header_data.items():
-                codes = spliter(val)
+                codes = spliterByStrLen(val)
                 f.write(bytes([key]))
                 f.write(bytes([len(val)]))
                 for code in codes:
                     f.write(bytes([int(code, 2)]))
 
     def _saveEncodedStrLen(self, filename):
-        str_len_arr = []
+        # str_len_arr = []
+        str_len_calc = 0
         str_len = len(self._encoded_str)
 
         max_power = 0
@@ -131,17 +205,42 @@ class HuffmanEncoder(Huffman):
         with open(filename, 'ab') as f:
             f.write(bytes([max_power+1])) # mod 256이 있기 때문에 range는 실제 길이보다 1 짧다.
             for i in range(max_power):
-                str_len_arr.append(str_len // 256**(max_power - i))
-                f.write(bytes([str_len // 256**(max_power - i)]))
-                str_len -= 256**(max_power-i) * str_len_arr[-1]
-            str_len_arr.append(str_len % 256)
+                # str_len_arr.append(str_len // 256**(max_power - i))
+                # f.write(bytes([str_len // 256**(max_power - i)]))
+                # str_len -= 256**(max_power-i) * str_len_arr[-1]
+                str_len_calc = str_len // 256**(max_power - i)
+                f.write(bytes([str_len_calc]))
+                str_len -= 256**(max_power-i) * str_len_calc
+            # str_len_arr.append(str_len % 256)
             f.write(bytes([str_len % 256]))
         # print(str_len_arr) # 실제 코드에서는 테스트 용도로만 사용
 
     def _saveEncodedStr(self, filename):
         with open(filename, 'ab') as f:
-            # for data in self._getEncodedStrLen(len(self._encoded_str)):
-            #     f.write(data) # 인코딩된 문자열의 길이 저장
-            
-            for bin in spliter(self._encoded_str):
+            for bin in spliterByStrLen(self._encoded_str):
                 f.write(bytes([int(bin, 2)]))
+
+def spliterByArrLen(arr, arr_len=4):
+    ret = []
+    each_str_len = len(arr) // arr_len
+    remainder_str_len = len(arr) % arr_len
+    last = -1
+    for _ in range(arr_len): 
+        # 0              ~ each_str_len -1      =>  last=-1
+        # 1*each_str_len ~ 2*each_str_len - 1       for
+        # 2*each_str_len ~ 3*each_str_len - 1           start=last+1
+        # 3*each_str_len ~                              last=(start-1) + each_str_len + idx_adder(0 or 1)
+        idx_adder = 1 if remainder_str_len > 0 else 0
+        remainder_str_len -= 1
+        start = last+1
+        last = (start-1) + each_str_len + idx_adder
+        ret.append(arr[start:last+1]) # split range: [start:last)
+        # print(start, last, last-start+1)
+
+    return ret
+
+def spliterByStrLen(arr, size=8):
+    ret = []
+    for idx in range(0, len(arr), size):
+        ret.append(arr[idx:idx+size])
+    return ret

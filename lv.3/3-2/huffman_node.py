@@ -39,11 +39,6 @@ class HuffmanNode():
     def print(self):
         print('data: {0}, cnt: {1}, code: {2}'.format(self._data, self._cnt, self._code))
 
-def spliter(arr, size=8):
-    ret = []
-    for idx in range(0, len(arr), size):
-        ret.append(arr[idx:idx+size])
-    return ret
 
 # https://www.delftstack.com/ko/howto/python/how-to-convert-int-to-bytes-in-python-2-and-python-3/
 # int to byte type
