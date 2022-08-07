@@ -5,7 +5,8 @@ PGM = 'P5'
 
 class PNM:
     def __init__(self):
-        self._f = lambda x: ''.join([ chr(dat) for dat in x ])
+        self._i = lambda x: int(''.join([ chr(dat) for dat in x ]))
+        self._c = lambda x: ''.join([ chr(dat) for dat in x ])
 
     def load(self):
         self._file = None
@@ -57,25 +58,25 @@ class PNM:
         if self._color_scale.pop(-1) == 0x0D:
             self._file.pop(0)
             
-        self._rgb_channel = 1 if self._f(self._header) == PGM else 3
+        self._rgb_channel = 1 if self._c(self._header) == PGM else 3
     
     def reverse(self):
         for idx in range(len(self._file)):
             self._file[idx] = 0xFF - self._file[idx]
 
     def drawsquare(self):
-        pos1_x = int(input('x1(1~{0}) >> '.format(self._f(self._img_row)))) - 1
-        pos1_y = int(input('y1(1~{0}) >> '.format(self._f(self._img_col)))) - 1
-        pos2_x = int(input('x2(1~{0}) >> '.format(self._f(self._img_row)))) - 1
-        pos2_y = int(input('y2(1~{0}) >> '.format(self._f(self._img_col)))) - 1
+        pos1_x = int(input('x1(1~{0}) >> '.format(self._i(self._img_row)))) - 1
+        pos1_y = int(input('y1(1~{0}) >> '.format(self._i(self._img_col)))) - 1
+        pos2_x = int(input('x2(1~{0}) >> '.format(self._i(self._img_row)))) - 1
+        pos2_y = int(input('y2(1~{0}) >> '.format(self._i(self._img_col)))) - 1
 
         if pos1_x > pos2_x:
             temp = pos1_x
             pos1_x = pos2_x
             pos2_x = temp
 
-            if pos2_x > int(self._f(self._img_col)) - 1:
-                pos2_x = int(self._f(self._img_col)) - 1
+            if pos2_x > self._i(self._img_col) - 1:
+                pos2_x = self._i(self._img_col) - 1
 
 
         if pos1_y > pos2_y:
@@ -83,47 +84,53 @@ class PNM:
             pos1_y = pos2_y
             pos2_y = temp
 
-            if pos2_y > int(self._f(self._img_col)) - 1:
-                pos2_y = int(self._f(self._img_col)) - 1
+            if pos2_y > self._i(self._img_col) - 1:
+                pos2_y = self._i(self._img_col) - 1
 
         color = int(input('0~255 >> '))
 
         for row in range(pos1_y, pos2_y+1):
             for col in range(pos1_x, pos2_x+1):
                 for rgb in range(self._rgb_channel):
-                    self._file[(row*int(self._f(self._img_col)) + col)*self._rgb_channel + rgb] = color
+                    self._file[(row*self._i(self._img_col) + col)*self._rgb_channel + rgb] = color
 
     def turn_right(self):
+
         temp = self._img_col
         self._img_col = self._img_row
         self._img_row = temp
 
+        arr = [ [ 0 for _ in range(self._i(self._img_col)) ] for _ in range(self._i(self._img_row)) ]
 
+        for row_idx, row in enumerate([ self._file[lst:lst+self._i(self._img_col)] for lst in range(0, len(self._file), self._i(self._img_row)) ]): # => row_cnt -> col_cnt, col_cnt -> row_cnt
+            for col_idx, data in enumerate(row):
+                for idx in range(self._rgb_channel):
+                    arr[col_idx][self._i(self._img_row)- row_idx -1 + idx] = data
+
+        self._file = []
+        for data in arr:
+            self._file += data
 
     def turn_left(self):
-        temp = self._img_col
-        self._img_col = self._img_row
-        self._img_row = temp
-
-        
+        None
 
     def mirror_lr(self):
-        for col in range(int(self._f(self._img_col)) // 2):
-            for row in range(int(self._f(self._img_row))):
+        for col in range(self._i(self._img_col) // 2):
+            for row in range(self._i(self._img_row)):
                 for idx in range(self._rgb_channel):
-                    temp = self._file[ (row*int(self._f(self._img_col)) + col)*self._rgb_channel + idx ]
-                    self._file[ (row*int(self._f(self._img_col)) + col)*self._rgb_channel + idx ] = \
-                        self._file[ ((row*int(self._f(self._img_col))) + (int(self._f(self._img_col)) - col - 1))*self._rgb_channel + idx ]
-                    self._file[ ((row*int(self._f(self._img_col))) + (int(self._f(self._img_col)) - col - 1))*self._rgb_channel + idx ] = temp
+                    temp = self._file[ (row*self._i(self._img_col) + col)*self._rgb_channel + idx ]
+                    self._file[ (row*self._i(self._img_col) + col)*self._rgb_channel + idx ] = \
+                        self._file[ ((row*self._i(self._img_col)) + (self._i(self._img_col) - col - 1))*self._rgb_channel + idx ]
+                    self._file[ ((row*self._i(self._img_col)) + (self._i(self._img_col) - col - 1))*self._rgb_channel + idx ] = temp
 
     def mirror_td(self):
-        for row in range(int(self._f(self._img_row)) // 2):
-            for col in range(int(self._f(self._img_col))):
+        for row in range(self._i(self._img_row) // 2):
+            for col in range(self._i(self._img_col)):
                 for idx in range(self._rgb_channel):
-                    temp = self._file[ (row*int(self._f(self._img_col)) + col)*self._rgb_channel + idx ]
-                    self._file[ (row*int(self._f(self._img_col)) + col - 1)*self._rgb_channel + idx ] = \
-                        self._file[ ((int(self._f(self._img_col)) - row - 1)*int(self._f(self._img_col)) + col - 1)*self._rgb_channel + idx ]
-                    self._file[ ((int(self._f(self._img_col)) - row - 1)*int(self._f(self._img_col)) + col - 1)*self._rgb_channel + idx ] = temp
+                    temp = self._file[ (row*self._i(self._img_col) + col)*self._rgb_channel + idx ]
+                    self._file[ (row*self._i(self._img_col) + col - 1)*self._rgb_channel + idx ] = \
+                        self._file[ ((self._i(self._img_col) - row - 1)*self._i(self._img_col) + col - 1)*self._rgb_channel + idx ]
+                    self._file[ ((self._i(self._img_col) - row - 1)*self._i(self._img_col) + col - 1)*self._rgb_channel + idx ] = temp
 
     def save(self):
         with open('output.'+('pgm' if self._rgb_channel == 1 else 'ppm'), 'wb') as f:
@@ -227,5 +234,6 @@ pnm.load()
 # pnm.reverse()
 # pnm.drawsquare()
 # pnm.mirror_td()
-pnm.mirror_lr()
+# pnm.mirror_lr()
+pnm.turn_right()
 pnm.save()
