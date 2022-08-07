@@ -1,21 +1,3 @@
-class IsInteger(Exception):
-    pass
-
-class IsNotSingleLen(Exception):
-    pass
-
-def cnv(i): # convert char -> byte or int -> byte
-    try:
-        if i.isdigit(): None
-        return bytes([ord(i)])
-    except:
-        return bytes([int(i)])
-
-    
-TAB = 9
-ENT = 10
-SPC = 32
-
 PPM = 'P6'
 PGM = 'P5'
 
@@ -23,11 +5,10 @@ PGM = 'P5'
 
 # 확장자 / col / row / color_scale
 
-filename = 'airplane.pgm'
+filename = 'house.ppm'
 with open('files/' + filename, 'rb') as f:
     file = list(f.read())
 
-print(len(file))
 # ==============================
 header = []
 header.append(file.pop(0))
@@ -57,28 +38,25 @@ while color_scale[-1] != 0x0D and color_scale[-1] != 0x0A:
 if color_scale.pop(-1) == 0x0D:
     file.pop(0)
 # ==============================
+
+
 f = lambda x: ''.join([ chr(dat) for dat in x ])
-
 rgb_channel = 1 if f(header) == PGM else 3
-print(int(f(img_col)) * int(f(img_row)) == len(file)/rgb_channel)
 
-print(file[0:10])
+# print(list(img_data.values())[0] + list(img_data.values())[1])
+
+print("format:{0}\ncol:{1} row:{2}\ncolor scale:{3}".format(f(header), f(img_col), f(img_row), f(color_scale)))
 
 for idx in range(len(file)):
     file[idx] = 0xFF - file[idx]
 
-print(file[0:10])
-
-output = 'output.' + ('pgm' if rgb_channel == 1 else 'ppm')
-
-
+# 저장하는 파일은 구분자로 0x0D 0x0A로 하지 않는다.
+# 오로지 0x0A
 def write(f, list):
     for data in list:
         f.write(bytes([data]))
 
-print("format:{0}\ncol:{1} row:{2}\ncolor scale:{3}".format(f(header), f(img_col), f(img_row), f(color_scale)))
-
-with open(output, 'wb') as f:
+with open('output.'+('pgm' if rgb_channel == 1 else 'ppm'), 'wb') as f:
     write(f, header)
     f.write(bytes([0x0A]))
     write(f, img_col)
