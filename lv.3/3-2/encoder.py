@@ -144,6 +144,7 @@ class HuffmanEncoder(Huffman):
         self._saveEncodeTree(filename)
         self._saveEncodedStrLen(filename)
         self._saveEncodedStr(filename)
+        self._saveHuffmanLenHistogram(filename)
         self._printRunTime(start, 'save')
         
         return filename
@@ -219,3 +220,11 @@ class HuffmanEncoder(Huffman):
         for idx in range(0, len(arr), size):
             ret.append(arr[idx:idx+size])
         return ret
+
+    def _saveHuffmanLenHistogram(self, filename):
+        filename = filename.split('.')[0] + '_histogram.csv'
+        print(self._huffman_len_histogram.items())
+        with open(filename, 'w') as f:
+            f.write("len_code, count\n")
+            for code, cnt in self._huffman_len_histogram.items():
+                f.write("{0:2d}, {1:3d}\n".format(code, cnt))
