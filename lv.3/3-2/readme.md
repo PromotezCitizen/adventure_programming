@@ -9,7 +9,7 @@ cli.py - pyinstaller로 exe 변환 가능. --hidden-import multipledispatch 옵�
     | multipledispatch    # 함수 오버로딩 위한 모듈
     | pyinstaller         # *.py to *.exe
 
-gui.py의 경우 exe로 만들 경우 아래와 같이 모든 프로세스 이름이 MainProcess, __name__값이 "__main__"으로 고정
+gui.py의 경우 exe로 만들 경우 아래와 같이 모든 프로세스 이름이 MainProcess, __name__값이 "\_\_main\_\_"으로 고정
 환경변수 추가를 통해 해결
 
 
