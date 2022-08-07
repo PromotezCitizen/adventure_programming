@@ -210,3 +210,7 @@ for data in temp:
             histo[key] = val
 print(histo)
 # =========================================================
+
+with open('ㅁㄴㅇㄹ.txt', 'r', encoding='utf8') as f:
+    lines = f.readlines()
+print(lines)
