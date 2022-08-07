@@ -1,23 +1,4 @@
-test.py - 개발하면서 테스트 했던 모든 함수 및 알고리즘 백업용
-
-gui.py - pyinstaller로 exe 변환 가능. --hidden-import multipledispatch 옵션 줘야 함
-cli.py - pyinstaller로 exe 변환 가능. --hidden-import multipledispatch 옵션 줘야 함
-
-의존성
-    pip install -r requiements
-
-    | multipledispatch    # 함수 오버로딩 위한 모듈
-    | pyinstaller         # *.py to *.exe
-
-gui.py의 경우 exe로 만들 경우 아래와 같이 모든 프로세스 이름이 MainProcess, __name__값이 "\_\_main\_\_"으로 고정
-
-환경변수 추가를 통해 해결
-
-![image](https://user-images.githubusercontent.com/81803973/183275958-58e675e4-99f0-4dbb-8f54-d6c0108aee25.png)
-
-
 임의의 텍스트 파일이 주어지면 허프만 코딩 방법을 이용하여 자료를 압축하며 압축된 파일을 해제하는 프로그램을 작성한다.
-
 다수의 텍스트 파일에서 실험을 하여 각각의 압축률과 평균적인 압축률을 계산해 본다.
 
 
@@ -41,3 +22,23 @@ gui.py의 경우 exe로 만들 경우 아래와 같이 모든 프로세스 이�
 + 추가 기능
   * 자동 인코딩/디코딩 - 완료
   * 복호화 시 자동으로 확장자 명 추가 - 완료
+
+
+===
+# 참고사항
+test.py - 개발하면서 테스트 했던 모든 함수 및 알고리즘 백업용
+
+gui.py - pyinstaller로 exe 변환 가능. --hidden-import multipledispatch 옵션 줘야 함
+cli.py - pyinstaller로 exe 변환 가능. --hidden-import multipledispatch 옵션 줘야 함
+
+의존성
+    pip install -r requiements
+
+    | multipledispatch    # 함수 오버로딩 위한 모듈
+    | pyinstaller         # *.py to *.exe
+
+gui.py의 경우 exe로 만들 경우 아래와 같이 모든 프로세스 이름이 MainProcess, __name__값이 "\_\_main\_\_"으로 고정
+
+환경변수 추가를 통해 해결
+
+![image](https://user-images.githubusercontent.com/81803973/183275958-58e675e4-99f0-4dbb-8f54-d6c0108aee25.png)
