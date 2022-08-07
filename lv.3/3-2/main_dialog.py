@@ -52,12 +52,13 @@ class GUI():
 
         self._window.config(menu=menubar)
 
+    # https://memories.tistory.com/68
+    # 다이얼로그 modal으로 생성
     def _createAboutDialog(self):
         sub = tkinter.Toplevel(self._window)
 
         sub.resizable(False, False)
         sub.title('About')
-        # sub.geometry("{0}x{1}+1150+400".format(300, 200))
         sub.attributes('-topmost', 'true')
 
         label_use_data = [
