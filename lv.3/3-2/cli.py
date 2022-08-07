@@ -1,12 +1,18 @@
 from codec import HuffmanCodec
-
+import os
+import multiprocessing as mp
 # C:\\Users\\Han\\Documents\\now.png
 # test.txt
 
 # cli를 사용하는 버전
+
 codec = HuffmanCodec()
 
-codec.run()
+if __name__ == "__main__":
+    codec.run()
+    codec.save()
+    os.system('pause')  
+
 
 '''
 # 코덱 만들기 전 사용했던 코드
@@ -41,7 +47,7 @@ codec.run()
         #               압축 및 복원 시간 : time 함수 이용
 
 # 확장 기능
-# ① GUI 구현 - 해볼까?
+# ① GUI 구현 - 완료
 # ② ASCII 문자 이외의 문자(한글, 유니코드 등)에 대해서도 동작하도록 한다.
 #   본 기능의 구현은 쉽지 않을 것으로 판단됨. 문제 분석 시 구현 가능성에 대해 검토
 #       - 동작은 함. binary로 읽어서 binary로 쓰기 때문.
