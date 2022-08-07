@@ -1,6 +1,5 @@
 from codec import HuffmanCodec
 import os
-import multiprocessing as mp
 # C:\\Users\\Han\\Documents\\now.png
 # test.txt
 
