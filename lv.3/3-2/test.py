@@ -123,66 +123,90 @@
 
 # # # ===================================================
 
-# =================== 문자열 나누기 test ===================
-def spliter(arr, arr_len):
-    temp = []
-    each_str_len = len(arr) // arr_len
-    remainder_str_len = len(arr) % arr_len
-    last = -1
-    print(each_str_len, remainder_str_len, len(arr))
-    for idx in range(arr_len): 
-        # 0              ~ each_str_len -1
-        # 1*each_str_len ~ 2*each_str_len - 1
-        # 2*each_str_len ~ 3*each_str_len - 1
-        # 3*each_str_len ~
-        idx_adder = 1 if remainder_str_len > 0 else 0
-        remainder_str_len -= 1
-        start = last+1
-        last = (start-1) + each_str_len + idx_adder
-        print(start, last, last-start+1)
+# # =================== 문자열 나누기 test ===================
+# def spliter(arr, arr_len):
+#     temp = []
+#     each_str_len = len(arr) // arr_len
+#     remainder_str_len = len(arr) % arr_len
+#     last = -1
+#     print(each_str_len, remainder_str_len, len(arr))
+#     for idx in range(arr_len): 
+#         # 0              ~ each_str_len -1
+#         # 1*each_str_len ~ 2*each_str_len - 1
+#         # 2*each_str_len ~ 3*each_str_len - 1
+#         # 3*each_str_len ~
+#         idx_adder = 1 if remainder_str_len > 0 else 0
+#         remainder_str_len -= 1
+#         start = last+1
+#         last = (start-1) + each_str_len + idx_adder
+#         print(start, last, last-start+1)
 
-        temp.append(arr[start:last+1])
+#         temp.append(arr[start:last+1])
 
-    return temp
+#     return temp
 
-# str_arr = "ㄱㄴㄷㄻㅄㅇㅈㅊㅋㅌㅍㅎㅂㅂ"
-# splited = spliter(str_arr, 4)
-# print(splited, [ len(x) for x in splited ])
-# =========================================================
+# # str_arr = "ㄱㄴㄷㄻㅄㅇㅈㅊㅋㅌㅍㅎㅂㅂ"
+# # splited = spliter(str_arr, 4)
+# # print(splited, [ len(x) for x in splited ])
+# # =========================================================
 
-# ================= multiprocessing =====================
-# ===== __name__ == "__main__" 없이 사용할 수 있을까? =====
-import multiprocessing
+# # ================= multiprocessing =====================
+# # ===== __name__ == "__main__" 없이 사용할 수 있을까? =====
+# import multiprocessing
 
-def worker(procnum, return_dict, calc_range):
-    """worker function"""
-    print(str(procnum) + " represent!")
-    temp = []
-    for data in calc_range:
-        temp.append(data)
-    return_dict[procnum] = temp
-    print(return_dict[procnum], len(return_dict[procnum]))
-    # return_dict[procnum] = [] -> return_dict[procnum].append()는 되지 않는다
+# def worker(procnum, return_dict, calc_range):
+#     """worker function"""
+#     print(str(procnum) + " represent!")
+#     temp = []
+#     for data in calc_range:
+#         temp.append(data)
+#     return_dict[procnum] = temp
+#     print(return_dict[procnum], len(return_dict[procnum]))
+#     # return_dict[procnum] = [] -> return_dict[procnum].append()는 되지 않는다
 
 
-def main():
-    print('proc: ', multiprocessing.current_process().name)
-    if multiprocessing.current_process().name == "MainProcess":
-        process_num = 4
-        multiprocessing.freeze_support()
-        manager = multiprocessing.Manager()
-        return_dict = manager.dict()
-        jobs = []
-        arg = "MainProcess"
-        data = spliter(arg, process_num)
-        for i in range(process_num):
-            p = multiprocessing.Process(target=worker, args=(i, return_dict, data[i]))
-            jobs.append(p)
-            p.start()
+# def main():
+#     print('proc: ', multiprocessing.current_process().name)
+#     if multiprocessing.current_process().name == "MainProcess":
+#         process_num = 4
+#         multiprocessing.freeze_support()
+#         manager = multiprocessing.Manager()
+#         return_dict = manager.dict()
+#         jobs = []
+#         arg = "MainProcess"
+#         data = spliter(arg, process_num)
+#         for i in range(process_num):
+#             p = multiprocessing.Process(target=worker, args=(i, return_dict, data[i]))
+#             jobs.append(p)
+#             p.start()
 
-        for proc in jobs:
-            proc.join()
-        print(return_dict.items())
+#         for proc in jobs:
+#             proc.join()
+#         print(return_dict.items())
 
-# main()
+# # main()
+# # =========================================================
+
+# =================== 히스토그램 작성 테스트 ================
+test = {}
+[0, 1, 2]
+for idx in range(3):
+    temp = {}
+    for key, val in enumerate(range(3)):
+        temp[key] = val
+    test[idx] = temp
+
+print(test.items())
+temp = [ x for x in test.values() ]
+print(temp)
+
+histo = {}
+for data in temp:
+    print(data)
+    for key, val in data.items():
+        try:
+            histo[key] += val
+        except:
+            histo[key] = val
+print(histo)
 # =========================================================

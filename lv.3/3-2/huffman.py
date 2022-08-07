@@ -19,7 +19,7 @@ class Huffman():
         self._lines = None          # 읽은 파일의 전체 내용 저장
         self._head_tree = None      # 허프만 트리의 헤드 노드 저장 
         self._encoded_str = ""      # 인코딩된 문자열
-        self._header_data = {}      # { key:data, value:code }
+        self._header_data = {}      # { key=data: value=code }
                                     # 허프만 부호화된 문자와 그에 해당하는 코드 저장
         self._origin_ext = []       # 원본 파일 확장자
 

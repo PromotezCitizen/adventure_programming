@@ -9,8 +9,12 @@ class HuffmanEncoder(Huffman):
         super().__init__()
         self._huffman_dict = None           # { key:data, value:HuffmanNode }
                                             # 허프만 트리 만들때만 사용
-        self._huffman_len_histogram = {}    # histogram에 저장용.
-                                            # 허프만 부호화된 문자의 길이에 관한 histogram
+        self._huffman_char_len_histogram = {}   # 허프만 부호화된 문자의 길이에 관한 histogram
+
+        self._huffman_len_histogram = {}    # 전체 파일에 대한 histogram
+
+        # self._char_histogram = {}           # 개별 문자에 대한 histogram
+                                            
 
     def run(self, filename):
         self.__init__()
@@ -95,9 +99,9 @@ class HuffmanEncoder(Huffman):
 
         if self._isInt(data['data']):
             try:
-                self._huffman_len_histogram[len(code)] += 1
+                self._huffman_char_len_histogram[len(code)] += 1
             except:
-                self._huffman_len_histogram[len(code)] = 1
+                self._huffman_char_len_histogram[len(code)] = 1
             finally:
                 self._header_data[data['data']] = code
 
@@ -110,6 +114,7 @@ class HuffmanEncoder(Huffman):
         mp.freeze_support()
         manager = mp.Manager()          # 멀티프로세싱의 global 변수
         return_dict = manager.dict()    # 딕셔너리를 global 변수로 쓰겠다
+        histogram_dict = manager.dict()
         jobs = []                       # process pool
         data = self._spliterByArrLen(self._lines, process_num)
             # 기본은 프로세스 4개
@@ -117,7 +122,7 @@ class HuffmanEncoder(Huffman):
         for i in range(process_num):
             jobs.append(mp.Process(
                 target=self._encodeProcessWorker,
-                args=(i, return_dict, data[i])
+                args=(i, return_dict, histogram_dict, data[i])
             ))
             jobs[-1].start()
 
@@ -126,11 +131,25 @@ class HuffmanEncoder(Huffman):
         
         self._encoded_str = ''.join(return_dict.values())
 
-    def _encodeProcessWorker(self, procnum, return_dict, calc_range):
+        temp = [ x for x in histogram_dict.values() ]
+        for data in temp:
+            for key, cnt in data.items():
+                try:
+                    self._huffman_len_histogram[key] += cnt
+                except:
+                    self._huffman_len_histogram[key] = cnt
+
+    def _encodeProcessWorker(self, procnum, return_dict, histogram_dict, calc_range):
         temp = ""
+        histogram = {}
         for data in calc_range:
             temp += self._header_data[data]
+            try:
+                histogram[len(self._header_data[data])] += 1
+            except:
+                histogram[len(self._header_data[data])] = 1
         return_dict[procnum] = temp
+        histogram_dict[procnum] = histogram
 
 
     # @dispatch()
@@ -144,7 +163,7 @@ class HuffmanEncoder(Huffman):
         self._saveEncodeTree(filename)
         self._saveEncodedStrLen(filename)
         self._saveEncodedStr(filename)
-        self._saveHuffmanLenHistogram(filename)
+        self._saveHuffmanCharHistogram(filename)
         self._printRunTime(start, 'save')
         
         return filename
@@ -221,10 +240,14 @@ class HuffmanEncoder(Huffman):
             ret.append(arr[idx:idx+size])
         return ret
 
-    def _saveHuffmanLenHistogram(self, filename):
+    def _saveHuffmanCharHistogram(self, filename):
         filename = filename.split('.')[0] + '_histogram.csv'
-        print(self._huffman_len_histogram.items())
         with open(filename, 'w') as f:
-            f.write("len_code, count\n")
+            f.write("len_code, count, per each char\n")
+            for code, cnt in self._huffman_char_len_histogram.items():
+                f.write("{0}, {1}\n".format(code, cnt))
+
+            f.write("\nlen_code, count, all file\n")
             for code, cnt in self._huffman_len_histogram.items():
-                f.write("{0:2d}, {1:3d}\n".format(code, cnt))
+                f.write("{0}, {1}\n".format(code, cnt))
+            f.write("avg len : {0}\n".format(sum([ len*cnt for len, cnt in self._huffman_len_histogram.items() ]) / sum([ x for x in self._huffman_len_histogram.values() ])))
