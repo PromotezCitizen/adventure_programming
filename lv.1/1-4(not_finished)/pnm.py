@@ -25,7 +25,7 @@ class PNM:
 
     def _readFile(self):
         filename = input("파일 이름 입력 >> ")
-        with open('files/' + filename, 'rb') as f:
+        with open(filename, 'rb') as f:
             self._file = list(f.read())
 
     def _getHeader(self):
@@ -102,10 +102,12 @@ class PNM:
 
         arr = [ [ 0 for _ in range(self._i(self._img_col)) ] for _ in range(self._i(self._img_row)) ]
 
-        for row_idx, row in enumerate([ self._file[lst:lst+self._i(self._img_col)] for lst in range(0, len(self._file), self._i(self._img_row)) ]): # => row_cnt -> col_cnt, col_cnt -> row_cnt
+        for row_idx, row in enumerate([ self._file[lst:lst+self._i(self._img_col)*self._rgb_channel] for lst in range(0, len(self._file)*self._rgb_channel, self._i(self._img_row)*self._rgb_channel) ]): # => row_cnt -> col_cnt, col_cnt -> row_cnt
             for col_idx, data in enumerate(row):
                 for idx in range(self._rgb_channel):
-                    arr[col_idx][self._i(self._img_row)- row_idx -1 + idx] = data
+                    print(row_idx, col_idx)
+                    print(col_idx, self._i(self._img_row) - row_idx*self._rgb_channel - 1 + idx)
+                    arr[col_idx][self._i(self._img_row) - row_idx*self._rgb_channel - 1 + idx] = data
 
         self._file = []
         for data in arr:
