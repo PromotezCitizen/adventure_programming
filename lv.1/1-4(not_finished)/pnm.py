@@ -23,6 +23,8 @@ class PNM:
         self._getImgSize()
         self._getColorsacle()
 
+        return self
+
     def _readFile(self):
         filename = input("파일 이름 입력 >> ")
         with open(filename, 'rb') as f:
@@ -64,6 +66,8 @@ class PNM:
         for idx in range(len(self._file)):
             self._file[idx] = 0xFF - self._file[idx]
 
+        return self
+
     def drawsquare(self):
         pos1_x = int(input('x1(1~{0}) >> '.format(self._i(self._img_row)))) - 1
         pos1_y = int(input('y1(1~{0}) >> '.format(self._i(self._img_col)))) - 1
@@ -82,6 +86,8 @@ class PNM:
             for col in range(pos1_y, pos2_y+1):
                 for rgb in range(self._rgb_channel):
                     self._file[(row*self._i(self._img_col) + col)*self._rgb_channel + rgb] = color
+
+        return self
 
     def _calcPosibility(self, pos1, pos2, max):
         pos1 = self._i(max) - 1 if pos1 > self._i(max) - 1 else pos1
@@ -106,11 +112,21 @@ class PNM:
         self._modifyFile(arr)
         self._swapRc()
 
-    def turn_left(self): # 구현 필요
+        return self
 
+    def turn_left(self): # 구현 필요
+        arr = [ [ 0 for _ in range(self._i(self._img_row)*self._rgb_channel) ] for _ in range(self._i(self._img_col)) ]
+
+        for row_idx, row in enumerate([ self._file[lst:lst+self._i(self._img_col)*self._rgb_channel] for lst in range(0, len(self._file)*self._rgb_channel, self._i(self._img_col)*self._rgb_channel) ]): 
+                                    # => row_cnt -> col_cnt, col_cnt -> row_cnt
+            for col_idx, col in enumerate([ row[lst:lst+self._rgb_channel] for lst in range(0, len(row), self._rgb_channel) ]):
+                for idx, data in enumerate(col):
+                    arr[self._i(self._img_col)-1 - col_idx][row_idx*self._rgb_channel + idx] = data
 
         self._modifyFile(arr)
         self._swapRc()
+
+        return self
 
     def _modifyFile(self, arr):
         self._file = []
@@ -131,6 +147,8 @@ class PNM:
                         self._file[ ((row*self._i(self._img_col)) + (self._i(self._img_col) - col - 1))*self._rgb_channel + idx ]
                     self._file[ ((row*self._i(self._img_col)) + (self._i(self._img_col) - col - 1))*self._rgb_channel + idx ] = temp
 
+        return self
+
     def mirror_td(self):
         for row in range(self._i(self._img_row) // 2):
             for col in range(self._i(self._img_col)):
@@ -139,6 +157,8 @@ class PNM:
                     self._file[ (row*self._i(self._img_col) + col - 1)*self._rgb_channel + idx ] = \
                         self._file[ ((self._i(self._img_col) - row - 1)*self._i(self._img_col) + col - 1)*self._rgb_channel + idx ]
                     self._file[ ((self._i(self._img_col) - row - 1)*self._i(self._img_col) + col - 1)*self._rgb_channel + idx ] = temp
+
+        return self
 
     def save(self):
         with open('output.'+('pgm' if self._rgb_channel == 1 else 'ppm'), 'wb') as f:
@@ -157,7 +177,7 @@ class PNM:
             f.write(bytes([data]))
 
 
-
+''' 
 # # 기본 구분자는 0x0A
 # # 확장자 / col / row / color_scale
 
@@ -236,13 +256,14 @@ class PNM:
 #     f.write(bytes([0x0A]))
 #     write(f, file)
 #     None
+'''
 
 pnm = PNM()
 pnm.load()
 # pnm.reverse()
-pnm.drawsquare()
+# pnm.drawsquare()
 # pnm.mirror_td()
 # pnm.mirror_lr()
-pnm.turn_right()
-pnm.drawsquare()
+# pnm.turn_right()
+# pnm.turn_left()
 pnm.save()
