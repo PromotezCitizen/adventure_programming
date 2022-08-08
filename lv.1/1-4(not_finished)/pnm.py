@@ -70,51 +70,57 @@ class PNM:
         pos2_x = int(input('x2(1~{0}) >> '.format(self._i(self._img_row)))) - 1
         pos2_y = int(input('y2(1~{0}) >> '.format(self._i(self._img_col)))) - 1
 
-        if pos1_x > pos2_x:
-            temp = pos1_x
-            pos1_x = pos2_x
-            pos2_x = temp
-
-            if pos2_x > self._i(self._img_col) - 1:
-                pos2_x = self._i(self._img_col) - 1
-
-
-        if pos1_y > pos2_y:
-            temp = pos1_y
-            pos1_y = pos2_y
-            pos2_y = temp
-
-            if pos2_y > self._i(self._img_col) - 1:
-                pos2_y = self._i(self._img_col) - 1
-
         color = int(input('0~255 >> '))
+        color = color if color < 0x100 else 0xFF
 
-        for row in range(pos1_y, pos2_y+1):
-            for col in range(pos1_x, pos2_x+1):
+        pos1_x, pos2_x = self._calcPosibility(pos1_x, pos2_x, self._img_row)
+        pos1_y, pos2_y = self._calcPosibility(pos1_y, pos2_y, self._img_col)
+
+        print('({0}, {1}), ({2}, {3})'.format(pos1_x, pos1_y, pos2_x, pos2_y), color)
+
+        for row in range(pos1_x, pos2_x+1):
+            for col in range(pos1_y, pos2_y+1):
                 for rgb in range(self._rgb_channel):
                     self._file[(row*self._i(self._img_col) + col)*self._rgb_channel + rgb] = color
 
+    def _calcPosibility(self, pos1, pos2, max):
+        pos1 = self._i(max) - 1 if pos1 > self._i(max) - 1 else pos1
+        pos2 = self._i(max) - 1 if pos2 > self._i(max) - 1 else pos2
+
+        if pos1 > pos2:
+            temp = pos1
+            pos1 = pos2
+            pos2 = temp
+        
+        return pos1, pos2
+
     def turn_right(self):
+        arr = [ [ 0 for _ in range(self._i(self._img_row)*self._rgb_channel) ] for _ in range(self._i(self._img_col)) ]
 
-        temp = self._img_col
-        self._img_col = self._img_row
-        self._img_row = temp
+        for row_idx, row in enumerate([ self._file[lst:lst+self._i(self._img_col)*self._rgb_channel] for lst in range(0, len(self._file)*self._rgb_channel, self._i(self._img_col)*self._rgb_channel) ]): 
+                                    # => row_cnt -> col_cnt, col_cnt -> row_cnt
+            for col_idx, col in enumerate([ row[lst:lst+self._rgb_channel] for lst in range(0, len(row), self._rgb_channel) ]):
+                for idx, data in enumerate(col):
+                    arr[col_idx][(self._i(self._img_row)-1 - row_idx)*self._rgb_channel + idx] = data
 
-        arr = [ [ 0 for _ in range(self._i(self._img_col)) ] for _ in range(self._i(self._img_row)) ]
+        self._modifyFile(arr)
+        self._swapRc()
 
-        for row_idx, row in enumerate([ self._file[lst:lst+self._i(self._img_col)*self._rgb_channel] for lst in range(0, len(self._file)*self._rgb_channel, self._i(self._img_row)*self._rgb_channel) ]): # => row_cnt -> col_cnt, col_cnt -> row_cnt
-            for col_idx, data in enumerate(row):
-                for idx in range(self._rgb_channel):
-                    print(row_idx, col_idx)
-                    print(col_idx, self._i(self._img_row) - row_idx*self._rgb_channel - 1 + idx)
-                    arr[col_idx][self._i(self._img_row) - row_idx*self._rgb_channel - 1 + idx] = data
+    def turn_left(self): # 구현 필요
 
+
+        self._modifyFile(arr)
+        self._swapRc()
+
+    def _modifyFile(self, arr):
         self._file = []
         for data in arr:
             self._file += data
 
-    def turn_left(self):
-        None
+    def _swapRc(self):
+        temp = self._img_col
+        self._img_col = self._img_row
+        self._img_row = temp
 
     def mirror_lr(self):
         for col in range(self._i(self._img_col) // 2):
@@ -234,8 +240,9 @@ class PNM:
 pnm = PNM()
 pnm.load()
 # pnm.reverse()
-# pnm.drawsquare()
+pnm.drawsquare()
 # pnm.mirror_td()
 # pnm.mirror_lr()
 pnm.turn_right()
+pnm.drawsquare()
 pnm.save()
